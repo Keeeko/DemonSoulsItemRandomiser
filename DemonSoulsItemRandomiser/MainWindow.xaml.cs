@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using SoulsFormats;
 
 namespace DemonSoulsItemRandomiser
 {
@@ -26,18 +27,6 @@ namespace DemonSoulsItemRandomiser
         {
             InitializeComponent();
 
-            using (var reader = new StreamReader(pathToItemLotFile))
-            {
-                List<string> listA = new List<string>();
-
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    var values = line.Split(';');
-
-                    listA.Add(values[0]);
-                }
-            }
         }
     }
 }
