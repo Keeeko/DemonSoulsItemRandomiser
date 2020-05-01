@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:DemonSoulsItemRandomiser"
         mc:Ignorable="d"
         Background="WhiteSmoke"
+        WindowStartupLocation="CenterScreen"
         Title="DeS Item Randomiser" Height="325" Width="500">
     <Grid>
         <StackPanel Margin="5">

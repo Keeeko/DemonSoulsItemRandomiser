@@ -83,7 +83,7 @@ namespace DemonSoulsItemRandomiser
             PARAM rings = parms["EquipParamAccessory"];
             PARAM consumables = parms["EquipParamGoods"];
             PARAM itemLots = parms["ItemLotParam"];
-            PARAM shopLineup = parms["shoplineupparam"];
+            PARAM shopLineup = parms["ShopLineupParam"];
 
             Random rng = new Random();
 
@@ -111,9 +111,9 @@ namespace DemonSoulsItemRandomiser
 
                         if (Convert.ToInt64(item["lotItemId01"].Value) != 0 && Convert.ToInt64(item["lotItemCategory01"].Value) != -1)
                         {
-                            SwapItemValues(item["lotItemId01"].Value, rowToSwapWith["lotItemId01"].Value);
-                            SwapItemValues(item["lotItemCategory01"].Value, rowToSwapWith["lotItemCategory01"].Value);
-                            SwapItemValues(item["lotItemNum01"].Value, rowToSwapWith["lotItemNum01"].Value);
+                            SwapItemValues(item, rowToSwapWith, "lotItemId01");
+                            SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
+                            SwapItemValues(item, rowToSwapWith, "lotItemNum01");
                         }
                     }
                 }
@@ -148,23 +148,18 @@ namespace DemonSoulsItemRandomiser
                             while (validRowFound == false)
                             {
                                 rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
-                                var rowToSwapWithId = rowToSwapWith["lotItemId01"].Value;
-                                var rowToSwapWithCategory = rowToSwapWith["lotItemCategory01"].Value;
-                                if (shopItems.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWithId) != 0 && Convert.ToInt64(rowToSwapWithCategory) != -1) validRowFound = true;
+                                if (shopItems.Contains(rowToSwapWith.ID)) validRowFound = true;
                             }
                         }
 
-                        if (Convert.ToInt64(item["lotItemId01"].Value) != 0 && Convert.ToInt64(item["lotItemCategory01"].Value) != -1)
-                        {
-                            SwapItemValues(item["shopType"].Value, rowToSwapWith["shopType"].Value);
-                            SwapItemValues(item["equipType"].Value, rowToSwapWith["equipType"].Value);
-                            SwapItemValues(item["equipID"].Value, rowToSwapWith["equipID"].Value);
-                            SwapItemValues(item["value"].Value, rowToSwapWith["value"].Value);
-                            SwapItemValues(item["mtrlId"].Value, rowToSwapWith["mtrlId"].Value);
-                            SwapItemValues(item["eventFlag"].Value, rowToSwapWith["eventFlag"].Value);
-                            SwapItemValues(item["sellQuantity"].Value, rowToSwapWith["sellQuantity"].Value);
-                            SwapItemValues(item["qwcId"].Value, rowToSwapWith["qwcId"].Value);
-                        }
+                            SwapItemValues(item, rowToSwapWith, "shopType");
+                            SwapItemValues(item, rowToSwapWith, "equipType");
+                            SwapItemValues(item, rowToSwapWith, "equipId");
+                            SwapItemValues(item, rowToSwapWith, "value");
+                            SwapItemValues(item, rowToSwapWith, "mtrlId");
+                            SwapItemValues(item, rowToSwapWith, "eventFlag");
+                            SwapItemValues(item, rowToSwapWith, "sellQuantity");
+                            SwapItemValues(item, rowToSwapWith, "qwcId");
                     }
                 }
             }
@@ -183,13 +178,13 @@ namespace DemonSoulsItemRandomiser
             parambnd.Write(pathToParamDataFile);
         }
 
-        private void SwapItemValues(object val1, object val2)
+        private void SwapItemValues(PARAM.Row val1, PARAM.Row val2, string valueName)
         {
-            var original = val1;
-            var newVal = val2;
+            var original = val1[valueName].Value;
+            var newVal = val2[valueName].Value;
 
-            val1 = newVal;
-            val2 = original;
+            val1[valueName].Value = newVal;
+            val2[valueName].Value = original;
         }
 
         private void InitIDLists()
