@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.IO;
 using SoulsFormats;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace DemonSoulsItemRandomiser
 {
@@ -44,8 +45,8 @@ namespace DemonSoulsItemRandomiser
         {
             InitializeComponent();
             DataContext = this;
+            RandomiseWorldTreasure = true;
             InitIDLists();
-            RandomiseItems();
         }
 
         private void RandomiseItems()
@@ -203,6 +204,17 @@ namespace DemonSoulsItemRandomiser
                 16560,16561,16562,16563,16564,16566,16567,16568,16569,16570,16573,16574,16575,16576,16580,16581,16590,16591,16601,16614,16616,16617,16640,16650,16651,16652,16653,16654,16655,16656,16657,16658,16659,16660,16661,
                 16662,16663,16664,16665,16666,16667,16668,16669,16670,16671,16672,10731, 10190, 10191, 10192, 10193
             };
+        }
+
+        private void bttnRandomise_Click(object sender, RoutedEventArgs e)
+        {
+            RandomiseItems();
+            MessageBox.Show("Randomisation Successful", "Items Randomised", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void bttnInstructions_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(Environment.CurrentDirectory + @"\Readme.txt");
         }
     }
 }
