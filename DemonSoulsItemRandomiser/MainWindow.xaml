@@ -5,8 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DemonSoulsItemRandomiser"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Background="WhiteSmoke"
+        Title="DeS Item Randomiser" Height="325" Width="500">
     <Grid>
-        
+        <StackPanel Margin="5">
+            <Label Content="Demon Souls Item Randomiser" FontSize="22" HorizontalContentAlignment="Center" FontWeight="Bold"></Label>
+            <Label Content="By Keeko" FontSize="18" HorizontalContentAlignment="Center"></Label>
+            <GroupBox Header="Settings">
+                <StackPanel>
+                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseWorldTreasure}">
+                        <TextBlock Text="Randomise World Treasure (the glowing orbs located around the map)" VerticalAlignment="Center" Margin="25,0,0,0" IsEnabled="True"></TextBlock>
+                    </CheckBox>
+                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseKeyItems}">
+                        <TextBlock Text="Randomise Key &amp; Progression Items (e.g Prison Cell keys)" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                    </CheckBox>
+                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseStartingEquipment}">
+                        <TextBlock Text="Randomise Starting Equipment" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                    </CheckBox>
+                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseEnemyDropTables}">
+                        <TextBlock Text="Randomise enemy drop tables" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                    </CheckBox>
+                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseShopInventory}">
+                        <TextBlock Text="Randomise shop inventory" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                    </CheckBox>
+                </StackPanel>
+
+            </GroupBox>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="bttnInstructions" Content="Instructions" Padding="10" Margin="5" Background="White"></Button>
+                <Button x:Name="bttnRandomise" Content="Randomise" Padding="10" Margin="5" Background="White"></Button>
+            </StackPanel>
+
+        </StackPanel>
     </Grid>
 </Window>

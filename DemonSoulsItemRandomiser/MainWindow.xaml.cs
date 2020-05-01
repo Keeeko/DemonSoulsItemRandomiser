@@ -13,27 +13,129 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.IO;
 using SoulsFormats;
-
+using System.ComponentModel;
 
 namespace DemonSoulsItemRandomiser
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         string pathToParamDataFile = Directory.GetCurrentDirectory() + @"\Data\gameparamna.parambnd.dcx";
         string pathToParamDef = Directory.GetCurrentDirectory() + @"\Data\paramdef\paramdef.paramdefbnd.dcx";
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public bool RandomiseWorldTreasure { get; set;}
+        public bool RandomiseKeyItems{ get; set; }
+        public bool RandomiseStartingEquipment { get; set; }
+        public bool RandomiseEnemyDropTables { get; set; }
+        public bool RandomiseShopInventory { get; set; }
+
+        //ID Lists
+        //Null and un-used objects
+        List<long> forbiddenItemLotIds;
+
+        //The orbs enemy drop after they die
+        List<long> enemyDropTableLotIds;
+
+        //World Drops (Glowing orbs on map)
+        List<long> treasureItemLots;
+
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
+            InitIDLists();
+            RandomiseItems();
+        }
 
+        private void RandomiseItems()
+        {
             // Reading an original paramdefbnd
             var paramdefs = new Dictionary<string, PARAMDEF>();
             var paramdefbnd = BND3.Read(pathToParamDef);
 
-            List<long> forbiddenItemLotIds = new List<long>
+            foreach (BinderFile file in paramdefbnd.Files)
+            {
+                var paramdef = PARAMDEF.Read(file.Bytes);
+                paramdefs[paramdef.ParamType] = paramdef;
+            }
+
+            var parms = new Dictionary<string, PARAM>();
+            var parambnd = BND3.Read(pathToParamDataFile);
+
+            foreach (BinderFile file in parambnd.Files)
+            {
+                string name = Path.GetFileNameWithoutExtension(file.Name);
+                var param = PARAM.Read(file.Bytes);
+                param.ApplyParamdef(paramdefs[param.ParamType]);
+                parms[name] = param;
+            }
+
+            PARAM weapons = parms["EquipParamWeapon"];
+            PARAM armor = parms["EquipParamProtector"];
+            PARAM rings = parms["EquipParamAccessory"];
+            PARAM consumables = parms["EquipParamGoods"];
+            PARAM itemLots = parms["ItemLotParam"];
+
+            Random rng = new Random();
+
+            //Swapping treasure
+            foreach (var item in itemLots.Rows)
+            {
+                if (treasureItemLots.Contains(item.ID))
+                {
+                    PARAM.Row rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
+
+                    if (!treasureItemLots.Contains(rowToSwapWith.ID))
+                    {
+                        bool validRowFound = false;
+
+                        while (validRowFound == false)
+                        {
+                            rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
+                            var rowToSwapWithId = rowToSwapWith["lotItemId01"].Value;
+                            var rowToSwapWithCategory = rowToSwapWith["lotItemCategory01"].Value;
+                            if (treasureItemLots.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWithId) != 0 && Convert.ToInt64(rowToSwapWithCategory) != -1) validRowFound = true;
+                        }
+                    }
+
+                    if (Convert.ToInt64(item["lotItemId01"].Value) != 0 && Convert.ToInt64(item["lotItemCategory01"].Value) != -1)
+                    {
+                        var rowToSwapWithIdTemp = rowToSwapWith["lotItemId01"].Value;
+                        var rowToSwapWithCategoryTemp = rowToSwapWith["lotItemCategory01"].Value;
+                        var rowToSwapWithItemNumber = rowToSwapWith["lotItemNum01"].Value;
+
+                        var originalRowTemp = item["lotItemId01"].Value;
+                        var originalRowCategoryTemp = item["lotItemCategory01"].Value;
+                        var originalRowItemNumber = item["lotItemNum01"].Value;
+
+                        item["lotItemId01"].Value = rowToSwapWithIdTemp;
+                        item["lotItemCategory01"].Value = rowToSwapWithCategoryTemp;
+                        item["lotItemNum01"].Value = rowToSwapWithItemNumber;
+
+                        rowToSwapWith["lotItemId01"].Value = originalRowTemp;
+                        rowToSwapWith["lotItemCategory01"].Value = originalRowCategoryTemp;
+                        rowToSwapWith["lotItemNum01"].Value = originalRowItemNumber;
+                    }
+                }
+            }
+
+            //Swapping EnemyDrop tables
+
+            //Swapping shop inventory
+
+
+            foreach (BinderFile file in parambnd.Files)
+            {
+                string name = Path.GetFileNameWithoutExtension(file.Name);
+                file.Bytes = parms[name].Write();
+            }
+            parambnd.Write(pathToParamDataFile);
+        }
+
+        private void InitIDLists()
+        {
+            forbiddenItemLotIds = new List<long>
             {
                 0,1,2,16244,16456,16457,16652,16657,310022,60,70,80,200,280,290,300,320,10100,10169,10170,10171,10172,10173,10174,10175,10176,10177,10178,10179,10180,10181,10182,10183,10184,10185,10195,10196,10197,10198,
                 10199,10223,10250,10251,10252,10253,10254,10255,10256,10257,10258,10259,10270,10271,10272,10273,10274,10275,10276,10277,10279,10281,10415,10416,10417,10418,10440,10441,10442,10443,10456,10457,10458,10459,
@@ -62,7 +164,7 @@ namespace DemonSoulsItemRandomiser
                 900031,900032,900033,900034,900035,900036,900037,900038,900039,900040,900041,900042,900043,900044,900045,900046,900047
             };
 
-            List<long> enemyDropTableLotIds = new List<long>
+            enemyDropTableLotIds = new List<long>
             {
                 210000,210001,210005,210006,210010,210011,210020,210021,210030,210031,210040,210041,210045,210046,210050,210051,210060,210061,210065,210066,210070,210071,210075,210076,210080,210081,210085,210086,210090,
                 210091,210092,220000,220001,220010,220011,220020,220021,220025,220026,220030,220031,220040,220045,220046,220050,220051,220055,220056,220060,220061,220065,220066,220070,220071,220080,220081,220090,220091,220100,
@@ -80,75 +182,27 @@ namespace DemonSoulsItemRandomiser
                 900031,900032,900033,900034,900035,900036,900037,900038,900039,900040,900041,900042,900043,900044,900045,900046,900047
             };
 
-            foreach (BinderFile file in paramdefbnd.Files)
+            treasureItemLots = new List<long>
             {
-                var paramdef = PARAMDEF.Read(file.Bytes);
-                paramdefs[paramdef.ParamType] = paramdef;
-            }
-
-            var parms = new Dictionary<string, PARAM>();
-            var parambnd = BND3.Read(pathToParamDataFile);
-
-            foreach (BinderFile file in parambnd.Files)
-            {
-                string name = Path.GetFileNameWithoutExtension(file.Name);
-                var param = PARAM.Read(file.Bytes);
-                param.ApplyParamdef(paramdefs[param.ParamType]);
-                parms[name] = param;
-            }
-
-            PARAM weapons = parms["EquipParamWeapon"];
-            PARAM armor = parms["EquipParamProtector"];
-            PARAM rings = parms["EquipParamAccessory"];
-            PARAM consumables = parms["EquipParamGoods"];
-            PARAM itemLots = parms["ItemLotParam"];
-
-            Random rng = new Random();
-
-            //You need to also bring the item category otherwise only consumeables will work
-            foreach(var item in itemLots.Rows)
-            {
-                if(!forbiddenItemLotIds.Contains(item.ID))
-                {
-                    PARAM.Row rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
-
-                    if(forbiddenItemLotIds.Contains(rowToSwapWith.ID))
-                    {
-                        bool validRowFound = false;
-
-                        while(validRowFound == false)
-                        {
-                            rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
-                            var rowToSwapWithId = rowToSwapWith["lotItemId01"].Value;
-                            var rowToSwapWithCategory = rowToSwapWith["lotItemCategory01"].Value;
-                            if (!forbiddenItemLotIds.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWithId) != 0 && Convert.ToInt64(rowToSwapWithCategory) != -1) validRowFound = true;
-                        }
-                    }
-
-                    if(!forbiddenItemLotIds.Contains(rowToSwapWith.ID) && Convert.ToInt64(item["lotItemId01"].Value) != 0 && Convert.ToInt64(item["lotItemCategory01"].Value) != -1)
-                    {
-                        var rowToSwapWithIdTemp = rowToSwapWith["lotItemId01"].Value;
-                        var rowToSwapWithCategoryTemp = rowToSwapWith["lotItemCategory01"].Value;
-
-                        var originalRowTemp = item["lotItemId01"].Value;
-                        var originalRowCategoryTemp = item["lotItemCategory01"].Value;
-
-                        item["lotItemId01"].Value = rowToSwapWithIdTemp;
-                        item["lotItemCategory01"].Value = rowToSwapWithCategoryTemp;
-
-                        rowToSwapWith["lotItemId01"].Value = originalRowTemp;
-                        rowToSwapWith["lotItemCategory01"].Value = originalRowCategoryTemp;
-                    }
-                }
-            }
-
-
-            foreach (BinderFile file in parambnd.Files)
-            {
-                string name = Path.GetFileNameWithoutExtension(file.Name);
-                file.Bytes = parms[name].Write();
-            }
-            parambnd.Write(pathToParamDataFile);
+                10120,10121,10122,10123,10124,10125,10126,10127,10128,10129,10130,10131,10132,10133,10134,10135,10136,10137,10138,10139,10140,10141,10142,10143,10144,10145,10146,10147,10148,10149,10150,10151,10152,10153,10154,
+                10155,10156,10157,10158,10159,10160,10161,10162,10163,10164,10165,10166,10167,10168,10194,10200,10201,10202,10203,10204,10205,10206,10207,10208,10209,10210,10211,10212,10213,10214,10215,10216,10217,10235,10236,
+                10237,10238,10239,10240,10241,10242,10243,10244,10245,10246,10247,10248,10249,10260,10261,10262,10263,10264,10265,10266,10267,10268,10269,10282,10283,10284,10285,10286,10287,10288,10289,10290,10291,10292,10293,
+                10294,10295,10296,10297,10298,10299,10300,10301,10302,10303,10330,10331,10332,10360,10361,10362,10363,10364,10365,10366,10367,10400,10401,10402,10403,10405,10406,10407,10408,10409,10410,10411,10412,10413,10414,
+                10419,10420,10421,10422,10423,10424,10425,10426,10427,10428,10429,10430,10431,10432,10433,10434,10435,10436,10437,10438,10454,10455,10460,10461,10462,10479,10491,10500,10501,10502,10503,10504,10505,10506,10507,
+                10508,10509,10510,10511,10512,10513,10514,10515,10516,10517,10518,10520,10521,10522,10523,10524,10525,10526,10527,10528,10529,10536,10537,10538,10539,10541,10543,10544,10545,10546,10547,10548,10557,10558,10559,
+                10560,10561,10562,10563,10564,10565,10566,10567,10568,10569,10582,10583,10584,10585,10586,10587,10589,10590,10591,10592,10593,10594,10595,10596,10597,10600,10601,10602,10603,10604,10605,10606,10607,10608,10609,
+                10610,10611,10612,10613,10614,10615,10616,10617,10618,10619,10620,10621,10622,10623,10624,10625,10626,10627,10628,10629,10630,10631,10632,10633,10634,10635,10636,10637,10638,10639,10640,10641,10642,10643,10644,
+                10645,10646,10647,10648,10649,10661,10662,10663,10664,10665,10666,10667,10668,10669,10671,10679,10682,10683,10684,10685,10686,10687,10688,10689,10690,10691,10692,10693,10694,10695,10696,10697,10698,10740,10741,
+                10750,10751,10760,10761,10810,10811,10812,10813,10814,10815,10816,10850,10860,10902,10974,10975,10976,10977,11000,11001,15001,15002,15003,15004,15005,15006,15007,15008,15009,15010,15011,15012,15013,15014,15015,
+                15016,15017,15018,15019,15020,15021,15022,15023,15024,15025,15026,15027,15028,15029,15030,15031,15032,15033,15034,15041,15042,15043,15044,15045,15046,15047,15048,15049,15050,15051,15052,15053,15054,15055,15057,
+                15058,15059,15060,15061,15063,15064,15065,15066,15067,15068,15081,15082,15083,15084,15085,15086,15087,15088,15089,15092,15093,15094,15095,15096,15097,15098,15402,15403,15500,15501,15502,15503,15527,15528,15529,
+                15530,15537,15538,15539,15600,15601,15700,15701,16200,16201,16202,16203,16204,16205,16218,16230,16231,16232,16233,16234,16235,16236,16237,16238,16239,16240,16241,16242,16243,16290,16400,16401,16402,16403,16404,
+                16405,16406,16407,16408,16409,16410,16411,16412,16413,16414,16415,16416,16417,16418,16419,16420,16421,16422,16423,16424,16425,16426,16427,16428,16429,16430,16431,16432,16433,16434,16435,16436,16437,16438,16439,
+                16440,16441,16442,16443,16444,16445,16446,16447,16462,16463,16470,16471,16472,16473,16474,16475,16500,16501,16502,16503,16504,16505,16506,16507,16508,16509,16510,16511,16512,16513,16514,16515,16516,16517,16518,
+                16519,16520,16521,16522,16523,16524,16525,16526,16527,16528,16529,16530,16531,16532,16533,16534,16535,16536,16537,16538,16539,16540,16541,16542,16543,16544,16545,16546,16547,16548,16549,16552,16554,16558,16559,
+                16560,16561,16562,16563,16564,16566,16567,16568,16569,16570,16573,16574,16575,16576,16580,16581,16590,16591,16601,16614,16616,16617,16640,16650,16651,16652,16653,16654,16655,16656,16657,16658,16659,16660,16661,
+                16662,16663,16664,16665,16666,16667,16668,16669,16670,16671,16672,10731, 10190, 10191, 10192, 10193
+            };
         }
     }
 }
