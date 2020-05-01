@@ -104,7 +104,7 @@ namespace DemonSoulsItemRandomiser
                 foreach (var item in treasureItemLotsRows)
                 {
                     PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
-                    if(rowToSwapWith.ID == item.ID) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                    while(rowToSwapWith.ID == item.ID) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
 
                     SwapItemValues(item, rowToSwapWith, "lotItemId01");
                     SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
@@ -126,7 +126,7 @@ namespace DemonSoulsItemRandomiser
                         {
                             //Find a random item with a valid drop table slot
                             PARAM.Row rowToSwapWith = enemyDropTableRows[rng.Next(enemyDropTableRows.Count)];
-                            while (rowToSwapWith.ID == item.ID && Convert.ToInt64(rowToSwapWith["lotItemId0" + i].Value) != 0 && Convert.ToInt64(item["lotItemCategory0" + i].Value) != -1)
+                            while (rowToSwapWith.ID == item.ID || Convert.ToInt64(rowToSwapWith["lotItemId0" + i].Value) == 0 || Convert.ToInt64(rowToSwapWith["lotItemCategory0" + i].Value) == -1)
                             {
                                 rowToSwapWith = enemyDropTableRows[rng.Next(enemyDropTableRows.Count)];
                             }
@@ -149,7 +149,12 @@ namespace DemonSoulsItemRandomiser
             {
                 foreach (var item in keyItemLotRows)
                 {
+                    PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                    while (rowToSwapWith.ID == item.ID || forbiddenItemLotIds.Contains(rowToSwapWith.ID)) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
 
+                    SwapItemValues(item, rowToSwapWith, "lotItemId01");
+                    SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
+                    SwapItemValues(item, rowToSwapWith, "lotItemNum01");
                 }
             }
 
