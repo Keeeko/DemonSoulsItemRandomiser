@@ -137,20 +137,115 @@ namespace DemonSoulsItemRandomiser
             {
                 foreach (var item in shopLineup.Rows)
                 {
-                    if (shopItems.Contains(item.ID))
+                    if (shopItems.Contains(item.ID) && Convert.ToInt64(item["shopType"].Value) != 3 || Convert.ToInt64(item["shopType"].Value) != 4)
                     {
-                        PARAM.Row rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
+                        //Decide if 
+                        bool swapWithWorldItem = false;
 
-                        if (!shopItems.Contains(rowToSwapWith.ID))
+                        if(Convert.ToInt64(item["equipId"].Value) != 1073741824)
                         {
-                            bool validRowFound = false;
+                            swapWithWorldItem = rng.Next(0, 2) > 0;
 
-                            while (validRowFound == false)
+                            if(swapWithWorldItem)
                             {
-                                rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
-                                if (shopItems.Contains(rowToSwapWith.ID)) validRowFound = true;
+                                PARAM.Row rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
+
+                                if (!treasureItemLots.Contains(rowToSwapWith.ID))
+                                {
+                                    bool validRowFound = false;
+
+                                    while (validRowFound == false)
+                                    {
+                                        rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
+                                        var rowToSwapWithId = rowToSwapWith["lotItemId01"].Value;
+                                        var rowToSwapWithCategory = rowToSwapWith["lotItemCategory01"].Value;
+                                        if (treasureItemLots.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWithId) != 0 && Convert.ToInt64(rowToSwapWithCategory) != -1) validRowFound = true;
+                                    }
+                                }
+
+                                var rowToSwapWithItemId = rowToSwapWith["lotItemId01"].Value;
+                                var rowToSwapWithItemCategory = 0;
+
+                                var currentRowItemId = item["equipId"].Value;
+                                var currentRowItemCategory = 0;
+
+                                switch (Convert.ToInt64(item["equipId"].Value))
+                                {
+                                    case 0:
+                                        currentRowItemCategory = 0;
+                                        break;
+                                    case 1:
+                                        currentRowItemCategory = 268435456;
+                                        break;
+                                    case 2:
+                                        currentRowItemCategory = 536870912;
+                                        break;
+                                    case 3:
+                                        currentRowItemCategory = 1073741824;
+                                        break;
+                                }
+
+                                switch (Convert.ToInt64(rowToSwapWith["lotItemCategory01"].Value))
+                                {
+                                    case 0:
+                                        rowToSwapWithItemCategory = 0;
+                                        break;
+                                    case 268435456:
+                                        rowToSwapWithItemCategory = 1;
+                                        break;
+                                    case 536870912:
+                                        rowToSwapWithItemCategory = 2;
+                                        break;
+                                    case 1073741824:
+                                        rowToSwapWithItemCategory = 3;
+                                        break;
+                                }
+
+                                rowToSwapWith["lotItemId01"].Value = currentRowItemId;
+                                rowToSwapWith["lotItemCategory01"].Value = currentRowItemCategory;
+
+                                item["equipId"].Value = rowToSwapWithItemId;
+                                item["equipType"].Value = rowToSwapWithItemCategory;
+                            }
+                            else
+                            {
+                                PARAM.Row rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
+
+                                if (!shopItems.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWith["shopType"].Value) != 3 || Convert.ToInt64(rowToSwapWith["shopType"].Value) != 4)
+                                {
+                                    bool validRowFound = false;
+
+                                    while (validRowFound == false)
+                                    {
+                                        rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
+                                        if (shopItems.Contains(rowToSwapWith.ID)) validRowFound = true;
+                                    }
+                                }
+
+                                SwapItemValues(item, rowToSwapWith, "shopType");
+                                SwapItemValues(item, rowToSwapWith, "equipType");
+                                SwapItemValues(item, rowToSwapWith, "equipId");
+                                SwapItemValues(item, rowToSwapWith, "value");
+                                SwapItemValues(item, rowToSwapWith, "mtrlId");
+                                SwapItemValues(item, rowToSwapWith, "eventFlag");
+                                SwapItemValues(item, rowToSwapWith, "sellQuantity");
+                                SwapItemValues(item, rowToSwapWith, "qwcId");
                             }
                         }
+                        else
+                        {
+                            PARAM.Row rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
+
+                            if (!shopItems.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWith["shopType"].Value) != 3 || Convert.ToInt64(rowToSwapWith["shopType"].Value) != 4)
+                            {
+                                bool validRowFound = false;
+
+                                while (validRowFound == false)
+                                {
+                                    rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
+                                    if (shopItems.Contains(rowToSwapWith.ID)) validRowFound = true;
+                                }
+                            }
 
                             SwapItemValues(item, rowToSwapWith, "shopType");
                             SwapItemValues(item, rowToSwapWith, "equipType");
@@ -160,6 +255,8 @@ namespace DemonSoulsItemRandomiser
                             SwapItemValues(item, rowToSwapWith, "eventFlag");
                             SwapItemValues(item, rowToSwapWith, "sellQuantity");
                             SwapItemValues(item, rowToSwapWith, "qwcId");
+                        }
+
                     }
                 }
             }
