@@ -25,8 +25,8 @@ namespace DemonSoulsItemRandomiser
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool RandomiseWorldTreasure { get; set;}
-        public bool RandomiseKeyItems{ get; set; }
+        public bool RandomiseWorldTreasure { get; set; }
+        public bool RandomiseKeyItems { get; set; }
         public bool RandomiseStartingEquipment { get; set; }
         public bool RandomiseEnemyDropTables { get; set; }
         public bool RandomiseShopInventory { get; set; }
@@ -37,15 +37,31 @@ namespace DemonSoulsItemRandomiser
 
         //The orbs enemy drop after they die
         List<long> enemyDropTableLotIds;
+        List<PARAM.Row> enemyDropTableRows;
 
         //World Drops (Glowing orbs on map)
         List<long> treasureItemLots;
+        List<PARAM.Row> treasureItemLotsRows;
 
         //Items that allow progression
         List<long> keyItems;
+        List<PARAM.Row> keyItemLotRows;
 
         //Items held in shops
         List<long> shopItems;
+        List<PARAM.Row> shopItemRows;
+
+        //Weapons
+        List<long> weaponIds;
+        List<PARAM.Row> weaponDatabase;
+
+        //Weapons
+        List<long> armorIds;
+        List<PARAM.Row> armorDatabase;
+
+        //Accesories
+        List<long> accesoryIds;
+        List<PARAM.Row> accesoryDatabase;
 
         public MainWindow()
         {
@@ -78,44 +94,21 @@ namespace DemonSoulsItemRandomiser
                 parms[name] = param;
             }
 
-            PARAM weapons = parms["EquipParamWeapon"];
-            PARAM armor = parms["EquipParamProtector"];
-            PARAM rings = parms["EquipParamAccessory"];
-            PARAM consumables = parms["EquipParamGoods"];
-            PARAM itemLots = parms["ItemLotParam"];
-            PARAM shopLineup = parms["ShopLineupParam"];
+            InitRowLists(parms["EquipParamWeapon"], parms["EquipParamProtector"], parms["EquipParamAccessory"], parms["ItemLotParam"], parms["ShopLineupParam"]);
 
             Random rng = new Random();
 
             //Swapping treasure
-            if(RandomiseWorldTreasure)
+            if (RandomiseWorldTreasure)
             {
-                foreach (var item in itemLots.Rows)
+                foreach (var item in treasureItemLotsRows)
                 {
-                    if (treasureItemLots.Contains(item.ID))
-                    {
-                        PARAM.Row rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
+                    PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                    if(rowToSwapWith.ID == item.ID) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
 
-                        if (!treasureItemLots.Contains(rowToSwapWith.ID))
-                        {
-                            bool validRowFound = false;
-
-                            while (validRowFound == false)
-                            {
-                                rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
-                                var rowToSwapWithId = rowToSwapWith["lotItemId01"].Value;
-                                var rowToSwapWithCategory = rowToSwapWith["lotItemCategory01"].Value;
-                                if (treasureItemLots.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWithId) != 0 && Convert.ToInt64(rowToSwapWithCategory) != -1) validRowFound = true;
-                            }
-                        }
-
-                        if (Convert.ToInt64(item["lotItemId01"].Value) != 0 && Convert.ToInt64(item["lotItemCategory01"].Value) != -1)
-                        {
-                            SwapItemValues(item, rowToSwapWith, "lotItemId01");
-                            SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
-                            SwapItemValues(item, rowToSwapWith, "lotItemNum01");
-                        }
-                    }
+                    SwapItemValues(item, rowToSwapWith, "lotItemId01");
+                    SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
+                    SwapItemValues(item, rowToSwapWith, "lotItemNum01");
                 }
             }
 
@@ -123,7 +116,32 @@ namespace DemonSoulsItemRandomiser
             //Swapping EnemyDrop tables
             if (RandomiseEnemyDropTables)
             {
+                foreach (var item in enemyDropTableRows)
+                {
+                    //8 is the number of drop table slots
+                    for (int i = 1; i < 8; i++)
+                    {
+                        //Find non-empty drop table slot
+                        if(Convert.ToInt64(item["lotItemId0" + i].Value) != 0 && Convert.ToInt64(item["lotItemCategory0" + i].Value) != -1)
+                        {
+                            //Find a random item with a valid drop table slot
+                            PARAM.Row rowToSwapWith = enemyDropTableRows[rng.Next(enemyDropTableRows.Count)];
+                            while (rowToSwapWith.ID == item.ID && Convert.ToInt64(rowToSwapWith["lotItemId0" + i].Value) != 0 && Convert.ToInt64(item["lotItemCategory0" + i].Value) != -1)
+                            {
+                                rowToSwapWith = enemyDropTableRows[rng.Next(enemyDropTableRows.Count)];
+                            }
 
+                            //Swap the droptable slots
+                            SwapItemValues(item, rowToSwapWith, "lotItemId0" + i);
+                            SwapItemValues(item, rowToSwapWith, "lotItemNum0" + i);
+                            SwapItemValues(item, rowToSwapWith, "lotItemBasePoint0" + i);
+                            SwapItemValues(item, rowToSwapWith, "QWCBasePoint0" + i);
+                            SwapItemValues(item, rowToSwapWith, "QWCAppliesPoint0" + i);
+                            SwapItemValues(item, rowToSwapWith, "enableLuck0" + i);
+                            SwapItemValues(item, rowToSwapWith, "lotItemCategory0" + i);
+                        }
+                    }
+                }
             }
 
             //Swapping key items
@@ -135,117 +153,71 @@ namespace DemonSoulsItemRandomiser
             //Swapping shop inventory
             if (RandomiseShopInventory)
             {
-                foreach (var item in shopLineup.Rows)
+                foreach (var item in shopItemRows)
                 {
-                    if (shopItems.Contains(item.ID) && Convert.ToInt64(item["shopType"].Value) != 3 || Convert.ToInt64(item["shopType"].Value) != 4)
+                    //Decide if swapping with vendor or with world items
+                    bool swapWithWorldItem = false;
+
+                    //If item is not a consumeable
+                    if (Convert.ToInt64(item["equipId"].Value) != 1073741824)
                     {
-                        //Decide if 
-                        bool swapWithWorldItem = false;
+                        swapWithWorldItem = rng.Next(0, 2) > 0;
 
-                        if(Convert.ToInt64(item["equipId"].Value) != 1073741824)
+                        if (swapWithWorldItem)
                         {
-                            swapWithWorldItem = rng.Next(0, 2) > 0;
+                            PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                            if (rowToSwapWith.ID == item.ID) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
 
-                            if(swapWithWorldItem)
+                            var rowToSwapWithItemId = rowToSwapWith["lotItemId01"].Value;
+                            var rowToSwapWithItemCategory = 0;
+
+                            var currentRowItemId = item["equipId"].Value;
+                            var currentRowItemCategory = 0;
+
+                            switch (Convert.ToInt64(item["equipId"].Value))
                             {
-                                PARAM.Row rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
-
-                                if (!treasureItemLots.Contains(rowToSwapWith.ID))
-                                {
-                                    bool validRowFound = false;
-
-                                    while (validRowFound == false)
-                                    {
-                                        rowToSwapWith = itemLots.Rows[rng.Next(itemLots.Rows.Count)];
-                                        var rowToSwapWithId = rowToSwapWith["lotItemId01"].Value;
-                                        var rowToSwapWithCategory = rowToSwapWith["lotItemCategory01"].Value;
-                                        if (treasureItemLots.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWithId) != 0 && Convert.ToInt64(rowToSwapWithCategory) != -1) validRowFound = true;
-                                    }
-                                }
-
-                                var rowToSwapWithItemId = rowToSwapWith["lotItemId01"].Value;
-                                var rowToSwapWithItemCategory = 0;
-
-                                var currentRowItemId = item["equipId"].Value;
-                                var currentRowItemCategory = 0;
-
-                                switch (Convert.ToInt64(item["equipId"].Value))
-                                {
-                                    case 0:
-                                        currentRowItemCategory = 0;
-                                        break;
-                                    case 1:
-                                        currentRowItemCategory = 268435456;
-                                        break;
-                                    case 2:
-                                        currentRowItemCategory = 536870912;
-                                        break;
-                                    case 3:
-                                        currentRowItemCategory = 1073741824;
-                                        break;
-                                }
-
-                                switch (Convert.ToInt64(rowToSwapWith["lotItemCategory01"].Value))
-                                {
-                                    case 0:
-                                        rowToSwapWithItemCategory = 0;
-                                        break;
-                                    case 268435456:
-                                        rowToSwapWithItemCategory = 1;
-                                        break;
-                                    case 536870912:
-                                        rowToSwapWithItemCategory = 2;
-                                        break;
-                                    case 1073741824:
-                                        rowToSwapWithItemCategory = 3;
-                                        break;
-                                }
-
-                                rowToSwapWith["lotItemId01"].Value = currentRowItemId;
-                                rowToSwapWith["lotItemCategory01"].Value = currentRowItemCategory;
-
-                                item["equipId"].Value = rowToSwapWithItemId;
-                                item["equipType"].Value = rowToSwapWithItemCategory;
+                                case 0:
+                                    currentRowItemCategory = 0;
+                                    break;
+                                case 1:
+                                    currentRowItemCategory = 268435456;
+                                    break;
+                                case 2:
+                                    currentRowItemCategory = 536870912;
+                                    break;
+                                case 3:
+                                    currentRowItemCategory = 1073741824;
+                                    break;
                             }
-                            else
+
+                            switch (Convert.ToInt64(rowToSwapWith["lotItemCategory01"].Value))
                             {
-                                PARAM.Row rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
-
-                                if (!shopItems.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWith["shopType"].Value) != 3 || Convert.ToInt64(rowToSwapWith["shopType"].Value) != 4)
-                                {
-                                    bool validRowFound = false;
-
-                                    while (validRowFound == false)
-                                    {
-                                        rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
-                                        if (shopItems.Contains(rowToSwapWith.ID)) validRowFound = true;
-                                    }
-                                }
-
-                                SwapItemValues(item, rowToSwapWith, "shopType");
-                                SwapItemValues(item, rowToSwapWith, "equipType");
-                                SwapItemValues(item, rowToSwapWith, "equipId");
-                                SwapItemValues(item, rowToSwapWith, "value");
-                                SwapItemValues(item, rowToSwapWith, "mtrlId");
-                                SwapItemValues(item, rowToSwapWith, "eventFlag");
-                                SwapItemValues(item, rowToSwapWith, "sellQuantity");
-                                SwapItemValues(item, rowToSwapWith, "qwcId");
+                                case 0:
+                                    rowToSwapWithItemCategory = 0;
+                                    break;
+                                case 268435456:
+                                    rowToSwapWithItemCategory = 1;
+                                    break;
+                                case 536870912:
+                                    rowToSwapWithItemCategory = 2;
+                                    break;
+                                case 1073741824:
+                                    rowToSwapWithItemCategory = 3;
+                                    break;
                             }
+
+                            rowToSwapWith["lotItemId01"].Value = currentRowItemId;
+                            rowToSwapWith["lotItemCategory01"].Value = currentRowItemCategory;
+
+                            item["equipId"].Value = rowToSwapWithItemId;
+                            item["equipType"].Value = rowToSwapWithItemCategory;
                         }
-                        else
+
+                        if (!swapWithWorldItem)
                         {
-                            PARAM.Row rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
-
-                            if (!shopItems.Contains(rowToSwapWith.ID) && Convert.ToInt64(rowToSwapWith["shopType"].Value) != 3 || Convert.ToInt64(rowToSwapWith["shopType"].Value) != 4)
-                            {
-                                bool validRowFound = false;
-
-                                while (validRowFound == false)
-                                {
-                                    rowToSwapWith = shopLineup.Rows[rng.Next(shopLineup.Rows.Count)];
-                                    if (shopItems.Contains(rowToSwapWith.ID)) validRowFound = true;
-                                }
-                            }
+                            //Don't swap an item with itself
+                            PARAM.Row rowToSwapWith = shopItemRows[rng.Next(shopItemRows.Count)];
+                            while (rowToSwapWith.ID == item.ID) rowToSwapWith = shopItemRows[rng.Next(shopItemRows.Count)];
 
                             SwapItemValues(item, rowToSwapWith, "shopType");
                             SwapItemValues(item, rowToSwapWith, "equipType");
@@ -256,7 +228,6 @@ namespace DemonSoulsItemRandomiser
                             SwapItemValues(item, rowToSwapWith, "sellQuantity");
                             SwapItemValues(item, rowToSwapWith, "qwcId");
                         }
-
                     }
                 }
             }
@@ -292,7 +263,7 @@ namespace DemonSoulsItemRandomiser
                 10199,10223,10250,10251,10252,10253,10254,10255,10256,10257,10258,10259,10270,10271,10272,10273,10274,10275,10276,10277,10279,10281,10415,10416,10417,10418,10440,10441,10442,10443,10456,10457,10458,10459,
                 10470,10471,10472,10473,10474,10475,10476,10477,10478,10480,10481,10490,10519,10530,10531,10532,10533,10535,10540,10542,10570,10571,10572,10573,10574,10575,10576,10577,10578,10579,10580,10581,10651,10652,
                 10653,10654,10655,10656,10657,10658,10659,10660,10670,10672,10673,10674,10675,10676,10677,10678,10680,10681,10715,10870,10871,10872,10873,10951,10970,10971,10972,10973,15056,15062,15069,15070,15071,15072,
-                15073,15074,15075,15076,15077,15078,15079,15084,15085,15086,15090,15091,15099,15100,15101,15102,15103,15200,15201,15202,15203,15300,15301,15302,15303,15400,15401,15521,15522,15523,15524,15525,15526,15531,
+                15073,15074,15075,15076,15077,15078,15079,15090,15091,15099,15100,15101,15102,15103,15200,15201,15202,15203,15300,15301,15302,15303,15400,15401,15521,15522,15523,15524,15525,15526,15531,
                 15532,15533,15534,15535,15536,15702,16206,16207,16208,16209,16210,16211,16212,16213,16214,16215,16216,16217,16219,16220,16221,16456,16457,16447,16448,16449,16450,16451,16452,16453,16454,16455,16456,16457,
                 16458,16459,16460,16461,16550,16551,16553,16555,16556,16557,16565,16571,16572,16600,16602,16603,16604,16605,16606,16607,16608,16609,16610,16611,16612,16613,16615,16618,16619,16620,16621,16622,16623,16624,
                 16625,16626,16627,16628,16629,16641,16673,16674,16675,16676,16677,16678,16679,16680,16681,16682,16683,16684,16685,16686,16687,16688,16689,100000,100001,220040,230040,310022,310027,310062,320022,320027,
@@ -336,23 +307,29 @@ namespace DemonSoulsItemRandomiser
             treasureItemLots = new List<long>
             {
                 10120,10121,10122,10123,10124,10125,10126,10127,10128,10129,10130,10131,10132,10133,10134,10135,10136,10137,10138,10139,10140,10141,10142,10143,10144,10145,10146,10147,10148,10149,10150,10151,10152,10153,10154,
-                10155,10156,10157,10158,10159,10160,10161,10162,10163,10164,10165,10166,10167,10168,10194,10200,10201,10202,10203,10204,10205,10206,10207,10208,10209,10210,10211,10212,10213,10214,10215,10216,10217,10235,10236,
-                10237,10238,10239,10240,10241,10242,10243,10244,10245,10246,10247,10248,10249,10260,10261,10262,10263,10264,10265,10266,10267,10268,10269,10282,10283,10284,10285,10286,10287,10288,10289,10290,10291,10292,10293,
-                10294,10295,10296,10297,10298,10299,10300,10301,10302,10303,10330,10331,10332,10360,10361,10362,10363,10364,10365,10366,10367,10400,10401,10402,10403,10405,10406,10407,10408,10409,10410,10411,10412,10413,10414,
-                10419,10420,10421,10422,10423,10424,10425,10426,10427,10428,10429,10430,10431,10432,10433,10434,10435,10436,10437,10438,10454,10455,10460,10461,10462,10479,10491,10500,10501,10502,10503,10504,10505,10506,10507,
-                10508,10509,10510,10511,10512,10513,10514,10515,10516,10517,10518,10520,10521,10522,10523,10524,10525,10526,10527,10528,10529,10536,10537,10538,10539,10541,10543,10544,10545,10546,10547,10548,10557,10558,10559,
-                10560,10561,10562,10563,10564,10565,10566,10567,10568,10569,10582,10583,10584,10585,10586,10587,10589,10590,10591,10592,10593,10594,10595,10596,10597,10600,10601,10602,10603,10604,10605,10606,10607,10608,10609,
-                10610,10611,10612,10613,10614,10615,10616,10617,10618,10619,10620,10621,10622,10623,10624,10625,10626,10627,10628,10629,10630,10631,10632,10633,10634,10635,10636,10637,10638,10639,10640,10641,10642,10643,10644,
-                10645,10646,10647,10648,10649,10661,10662,10663,10664,10665,10666,10667,10668,10669,10671,10679,10682,10683,10684,10685,10686,10687,10688,10689,10690,10691,10692,10693,10694,10695,10696,10697,10698,10740,10741,
-                10750,10751,10760,10761,10810,10811,10812,10813,10814,10815,10816,10850,10860,10902,10974,10975,10976,10977,11000,11001,15001,15002,15003,15004,15005,15006,15007,15008,15009,15010,15011,15012,15013,15014,15015,
-                15016,15017,15018,15019,15020,15021,15022,15023,15024,15025,15026,15027,15028,15029,15030,15031,15032,15033,15034,15041,15042,15043,15044,15045,15046,15047,15048,15049,15050,15051,15052,15053,15054,15055,15057,
-                15058,15059,15060,15061,15063,15064,15065,15066,15067,15068,15081,15082,15083,15084,15085,15086,15087,15088,15089,15092,15093,15094,15095,15096,15097,15098,15402,15403,15500,15501,15502,15503,15527,15528,15529,
-                15530,15537,15538,15539,15600,15601,15700,15701,16200,16201,16202,16203,16204,16205,16218,16230,16231,16232,16233,16234,16235,16236,16237,16238,16239,16240,16241,16242,16243,16290,16400,16401,16402,16403,16404,
-                16405,16406,16407,16408,16409,16410,16411,16412,16413,16414,16415,16416,16417,16418,16419,16420,16421,16422,16423,16424,16425,16426,16427,16428,16429,16430,16431,16432,16433,16434,16435,16436,16437,16438,16439,
-                16440,16441,16442,16443,16444,16445,16446,16447,16462,16463,16470,16471,16472,16473,16474,16475,16500,16501,16502,16503,16504,16505,16506,16507,16508,16509,16510,16511,16512,16513,16514,16515,16516,16517,16518,
-                16519,16520,16521,16522,16523,16524,16525,16526,16527,16528,16529,16530,16531,16532,16533,16534,16535,16536,16537,16538,16539,16540,16541,16542,16543,16544,16545,16546,16547,16548,16549,16552,16554,16558,16559,
-                16560,16561,16562,16563,16564,16566,16567,16568,16569,16570,16573,16574,16575,16576,16580,16581,16590,16591,16601,16614,16616,16617,16640,16650,16651,16652,16653,16654,16655,16656,16657,16658,16659,16660,16661,
-                16662,16663,16664,16665,16666,16667,16668,16669,16670,16671,16672,10731, 10190, 10191, 10192, 10193
+                10155,10156,10157,10158,10159,10160,10161,10162,10163,10164,10165,10166,10167,10168,10194,10201,10202,10203,10204,10205,10206,10207,10208,10209,10210,10211,10212,10213,10214,10215,10216,10217,10235,10236,10237,
+                10238,10239,10240,10241,10242,10243,10244,10245,10246,10247,10248,10249,10260,10261,10262,10263,10264,10265,10266,10267,10268,10269,10282,10283,10284,10285,10286,10287,10288,10289,10290,10291,10292,10293,10294,
+                10295,10296,10297,10298,10299,10300,10301,10302,10303,10330,10331,10332,10360,10361,10362,10363,10364,10365,10366,10367,10400,10401,10402,10403,10405,10406,10407,10408,10409,10410,10411,10412,10413,10414,10419,
+                10420,10421,10422,10423,10424,10425,10426,10427,10428,10429,10430,10431,10432,10433,10434,10435,10436,10437,10438,10454,10455,10460,10461,10462,10491,10505,10506,10507,10508,10509,10510,10511,10512,10513,
+                10514,10515,10516,10517,10518,10520,10521,10522,10523,10524,10525,10526,10527,10528,10529,10536,10537,10538,10539,10541,10543,10544,10545,10546,10547,10548,10557,10558,10559,10560,10561,10562,10563,10564,10565,
+                10566,10567,10568,10569,10582,10583,10584,10585,10586,10587,10589,10590,10591,10592,10595,10596,10597,10600,10601,10602,10603,10604,10605,10606,10607,10608,10609,10610,10611,10612,10613,10614,10615,10616,10617,
+                10618,10619,10620,10621,10622,10623,10624,10625,10626,10628,10629,10630,10631,10632,10633,10634,10635,10636,10637,10638,10639,10640,10641,10642,10643,10644,10645,10646,10647,10648,10649,10661,10662,10663,10664,
+                10665,10666,10667,10668,10669,10682,10683,10684,10685,10686,10687,10688,10689,10690,10691,10692,10693,10694,10695,10696,10697,10698,10740,10741,10750,10751,10760,10761,10810,10811,10812,10813,10814,10815,10816,
+                10850,10860,10974,10975,10976,10977,11000,11001,15001,15002,15003,15004,15005,15006,15007,15008,15009,15010,15011,15012,15013,15014,15015,15016,15017,15018,15019,15020,15021,15022,15023,15024,15025,15026,15027,
+                15028,15029,15030,15031,15032,15033,15034,15041,15042,15043,15044,15045,15046,15047,15048,15049,15050,15051,15052,15053,15054,15055,15057,15058,15059,15060,15061,15063,15064,15065,15066,15067,15068,15081,15082,
+                15083,15084,15085,15086,15087,15088,15089,15092,15093,15094,15095,15096,15097,15098,15402,15403,15500,15501,15502,15503,15527,15528,15529,15530,15537,15538,15539,15600,15601,15700,15701,16200,16201,16202,16203,
+                16204,16205,16218,16230,16231,16232,16233,16234,16235,16236,16237,16238,16239,16240,16241,16242,16243,16290,16400,16401,16402,16403,16404,16405,16406,16407,16408,16409,16410,16411,16412,16413,16414,16415,16416,
+                16417,16418,16419,16420,16421,16422,16423,16424,16425,16426,16427,16428,16429,16430,16431,16432,16433,16434,16435,16436,16437,16438,16439,16440,16441,16442,16443,16444,16445,16446,16462,16463,16470,16471,
+                16472,16473,16474,16475,16500,16501,16502,16503,16504,16505,16506,16507,16508,16509,16510,16511,16512,16513,16514,16515,16516,16517,16518,16519,16520,16521,16522,16523,16524,16525,16526,16527,16528,16529,16530,
+                16531,16532,16533,16534,16535,16536,16537,16538,16539,16540,16541,16542,16543,16544,16545,16546,16547,16548,16549,16552,16554,16558,16559,16560,16561,16562,16563,16564,16566,16567,16568,16569,16570,16573,16574,
+                16575,16576,16580,16581,16590,16601,16614,16616,16617,16640,16650,16651,16652,16653,16654,16655,16656,16657,16658,16659,16660,16661,16662,16663,16664,16665,16666,16667,16668,16669,16670,16671,16672,10731,10191,
+                10192,10193,10710,10711,10712,10713,10714,10716
+
+            };
+
+            keyItems = new List<long>
+            {
+                10200,10106,10107,10500,10501,10502,10503,10504,10594,10553,10554,10555,10556
             };
 
             shopItems = new List<long>
@@ -362,6 +339,57 @@ namespace DemonSoulsItemRandomiser
                 4053,4054,4055,5000,5001,5002,5003,5004,5050,5051,5052,5053,5054,6000,6001,6002,6003,6004,6005,6006,6007,6050,6051,6100,6101,6151,6153,7001,7002,7003,7004,7005,7006,7007,7050,7051,7052,7053,7054,7055,7056,7057,
                 7058,7059,7060,7061,7062,7063,7064,7065,7100,7101,7102,7103,7104,7105,8000,8001,8002,8003,8050,8051,8052,8053,8054,8055,8056,8057,8058,8059,8060,8061,9000,9001,9002,9003,9004,9005,9006,9007,9008
             };
+        }
+
+        private void InitRowLists(PARAM weapons, PARAM armor, PARAM accesories, PARAM itemLots, PARAM shopItems)
+        {
+            enemyDropTableRows = new List<PARAM.Row>();
+            treasureItemLotsRows = new List<PARAM.Row>();
+            shopItemRows = new List<PARAM.Row>();
+            keyItemLotRows = new List<PARAM.Row>();
+            weaponDatabase = new List<PARAM.Row>();
+            accesoryDatabase = new List<PARAM.Row>();
+            armorDatabase = new List<PARAM.Row>();
+
+            foreach (var item in weapons.Rows)
+            {
+                weaponDatabase.Add(item);
+            }
+
+            foreach (var item in armor.Rows)
+            {
+                armorDatabase.Add(item);
+            }
+
+            foreach (var item in accesories.Rows)
+            {
+                accesoryDatabase.Add(item);
+            }
+
+            foreach (var item in shopItems.Rows)
+            {
+                //Exclude spell vendors
+                if (Convert.ToInt64(item["shopType"].Value) != 3 || Convert.ToInt64(item["shopType"].Value) != 4)
+                {
+                    shopItemRows.Add(item);
+                }
+            }
+
+            foreach (var item in itemLots.Rows)
+            {
+                if (treasureItemLots.Contains(item.ID))
+                {
+                    treasureItemLotsRows.Add(item);
+                }
+                else if (enemyDropTableLotIds.Contains(item.ID))
+                {
+                    enemyDropTableRows.Add(item);
+                }
+                else if (keyItems.Contains(item.ID))
+                {
+                    keyItemLotRows.Add(item);
+                }
+            }
         }
 
         private void bttnRandomise_Click(object sender, RoutedEventArgs e)
