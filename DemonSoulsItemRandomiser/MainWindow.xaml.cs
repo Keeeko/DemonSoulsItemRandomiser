@@ -20,8 +20,8 @@ namespace DemonSoulsItemRandomiser
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        string pathToParamDataFile = Directory.GetCurrentDirectory() + @"\Data\gameparamna.parambnd.dcx";
-        string pathToParamDef = Directory.GetCurrentDirectory() + @"\Data\paramdef\paramdef.paramdefbnd.dcx";
+        readonly string pathToParamDataFile = Directory.GetCurrentDirectory() + @"\Data\gameparamna.parambnd.dcx";
+        readonly string pathToParamDef = Directory.GetCurrentDirectory() + @"\Data\paramdef\paramdef.paramdefbnd.dcx";
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -50,6 +50,12 @@ namespace DemonSoulsItemRandomiser
         //Items held in shops
         List<long> shopItems;
         List<PARAM.Row> shopItemRows;
+
+        //Boss items
+        List<long> bossItems;
+        List<PARAM.Row> bossItemsRows;
+
+
 
         //Weapons
         List<long> weaponIds;
@@ -246,6 +252,50 @@ namespace DemonSoulsItemRandomiser
 
             }
 
+            //Randomise Boss souls
+            foreach (var item in bossItemsRows)
+            {
+                    //Find non-empty drop table slot
+                    if (Convert.ToInt64(item["lotItemId01"].Value) != 0 && Convert.ToInt64(item["lotItemCategory01"].Value) != -1)
+                    {
+                        //Find a random item with a valid drop table slot
+                        PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                        while (rowToSwapWith.ID == item.ID || Convert.ToInt64(rowToSwapWith["lotItemId01"].Value) == 0 || Convert.ToInt64(rowToSwapWith["lotItemCategory01"].Value) == -1)
+                        {
+                            rowToSwapWith = enemyDropTableRows[rng.Next(enemyDropTableRows.Count)];
+                        }
+
+                        //Swap the droptable slots
+                        SwapItemValues(item, rowToSwapWith, "lotItemId01");
+                        SwapItemValues(item, rowToSwapWith, "lotItemNum01");
+                        SwapItemValues(item, rowToSwapWith, "lotItemBasePoint01");
+                        SwapItemValues(item, rowToSwapWith, "QWCBasePoint01");
+                        SwapItemValues(item, rowToSwapWith, "QWCAppliesPoint01");
+                        SwapItemValues(item, rowToSwapWith, "enableLuck01");
+                        SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
+                }  
+                else if (Convert.ToInt64(item["lotItemId02"].Value) != 0 && Convert.ToInt64(item["lotItemCategory02"].Value) != -1)
+                {
+                    //Find a random item from treasure drops
+                    PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                    while (rowToSwapWith.ID == item.ID || Convert.ToInt64(rowToSwapWith["lotItemId01"].Value) == 0 || Convert.ToInt64(rowToSwapWith["lotItemCategory01"].Value) == -1)
+                    {
+                        rowToSwapWith = enemyDropTableRows[rng.Next(enemyDropTableRows.Count)];
+                    }
+
+                    //Swap the boss soul drops
+                    SwapItemValues(item, rowToSwapWith, "lotItemId02", "lotItemId01");
+                    SwapItemValues(item, rowToSwapWith, "lotItemNum02", "lotItemNum01");
+                    SwapItemValues(item, rowToSwapWith, "lotItemBasePoint02", "lotItemBasePoint01");
+                    SwapItemValues(item, rowToSwapWith, "QWCBasePoint02", "QWCBasePoint01");
+                    SwapItemValues(item, rowToSwapWith, "QWCAppliesPoint02", "QWCAppliesPoint01");
+                    SwapItemValues(item, rowToSwapWith, "enableLuck02", "enableLuck01");
+                    SwapItemValues(item, rowToSwapWith, "lotItemCategory02", "lotItemCategory01");
+                }
+                   
+                  
+            }
+
             foreach (BinderFile file in parambnd.Files)
             {
                 string name = Path.GetFileNameWithoutExtension(file.Name);
@@ -261,6 +311,15 @@ namespace DemonSoulsItemRandomiser
 
             val1[valueName].Value = newVal;
             val2[valueName].Value = original;
+        }
+
+        private void SwapItemValues(PARAM.Row val1, PARAM.Row val2, string valueName, string valueName2)
+        {
+            var original = val1[valueName].Value;
+            var newVal = val2[valueName2].Value;
+
+            val1[valueName].Value = newVal;
+            val2[valueName2].Value = original;
         }
 
         private void InitIDLists()
@@ -326,6 +385,11 @@ namespace DemonSoulsItemRandomiser
                 4053,4054,4055,5000,5001,5002,5003,5004,5050,5051,5052,5053,5054,6000,6001,6002,6003,6004,6005,6006,6007,6050,6051,6100,6101,6151,6153,7001,7002,7003,7004,7005,7006,7007,7050,7051,7052,7053,7054,7055,7056,7057,
                 7058,7059,7060,7061,7062,7063,7064,7065,7100,7101,7102,7103,7104,7105,8000,8001,8002,8003,8050,8051,8052,8053,8054,8055,8056,8057,8058,8059,8060,8061,9000,9001,9002,9003,9004,9005,9006,9007,9008
             };
+
+            bossItems = new List<long>
+            {
+                10101,10110,10111,10112,10117,10118,10230,10231,10232,10450,10451,10452,10550,10551,10552,10630,10631,10632,10800,10950,10900,10901,10671,10679,10479
+            };
         }
 
         private void InitRowLists(PARAM weapons, PARAM armor, PARAM accesories, PARAM itemLots, PARAM shopItems)
@@ -337,6 +401,7 @@ namespace DemonSoulsItemRandomiser
             weaponDatabase = new List<PARAM.Row>();
             accesoryDatabase = new List<PARAM.Row>();
             armorDatabase = new List<PARAM.Row>();
+            bossItemsRows = new List<PARAM.Row>();
 
             foreach (var item in weapons.Rows)
             {
@@ -364,12 +429,6 @@ namespace DemonSoulsItemRandomiser
 
             foreach (var item in itemLots.Rows)
             {
-                if(keyItems.Contains(item.ID))
-                {
-                    keyItemLotRows.Add(item);
-                }
-                else
-                {
                     if (treasureItemLots.Contains(item.ID))
                     {
                         treasureItemLotsRows.Add(item);
@@ -382,7 +441,10 @@ namespace DemonSoulsItemRandomiser
                     {
                         keyItemLotRows.Add(item);
                     }
-                }
+                    else if(bossItems.Contains(item.ID))
+                    {
+                        bossItemsRows.Add(item);
+                    }
             }
         }
 

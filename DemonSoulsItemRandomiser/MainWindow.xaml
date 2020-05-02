@@ -20,9 +20,6 @@
                     <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseKeyItems}">
                         <TextBlock Text="Randomise Key &amp; Progression Items (e.g Prison Cell keys)" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
                     </CheckBox>
-                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseStartingEquipment}">
-                        <TextBlock Text="Randomise Starting Equipment" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
-                    </CheckBox>
                     <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseEnemyDropTables}">
                         <TextBlock Text="Randomise enemy drop tables" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
                     </CheckBox>
