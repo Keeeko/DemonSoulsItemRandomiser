@@ -55,7 +55,8 @@ namespace DemonSoulsItemRandomiser
         List<long> bossItems;
         List<PARAM.Row> bossItemsRows;
 
-
+        //Starting Characters
+        List<PARAM.Row> startingEquipmentRows;
 
         //Weapons
         List<long> weaponIds;
@@ -249,7 +250,16 @@ namespace DemonSoulsItemRandomiser
             //Swapping starting equipment
             if (RandomiseStartingEquipment)
             {
+                //foreach (var item in startingEquipmentRows)
+                //{
+                //    PARAM.Row rowToSwapWith = weaponDatabase[rng.Next(weaponDatabase.Count)];
+                //    while (rowToSwapWith.ID == item.ID) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
 
+                //    SwapItemValues(item, rowToSwapWith, "lotItemId01");
+                //    SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
+                //    SwapItemValues(item, rowToSwapWith, "lotItemNum01");
+
+                //}
             }
 
             //Randomise Boss souls
@@ -392,7 +402,7 @@ namespace DemonSoulsItemRandomiser
             };
         }
 
-        private void InitRowLists(PARAM weapons, PARAM armor, PARAM accesories, PARAM itemLots, PARAM shopItems)
+        private void InitRowLists(PARAM weapons, PARAM armor, PARAM accesories, PARAM itemLots, PARAM shopItems, PARAM startingEquipment)
         {
             enemyDropTableRows = new List<PARAM.Row>();
             treasureItemLotsRows = new List<PARAM.Row>();
@@ -402,6 +412,7 @@ namespace DemonSoulsItemRandomiser
             accesoryDatabase = new List<PARAM.Row>();
             armorDatabase = new List<PARAM.Row>();
             bossItemsRows = new List<PARAM.Row>();
+            startingEquipmentRows = new List<PARAM.Row>();
 
             foreach (var item in weapons.Rows)
             {
@@ -416,6 +427,11 @@ namespace DemonSoulsItemRandomiser
             foreach (var item in accesories.Rows)
             {
                 accesoryDatabase.Add(item);
+            }
+
+            foreach (var item in startingEquipment.Rows)
+            {
+                startingEquipmentRows.Add(item);
             }
 
             foreach (var item in shopItems.Rows)
