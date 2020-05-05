@@ -30,7 +30,6 @@
 
             </GroupBox>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="bttnInstructions" Content="Instructions" Padding="10" Margin="5" Background="White" Click="bttnInstructions_Click"></Button>
                 <Button x:Name="bttnRandomise" Content="Randomise" Padding="10" Margin="5" Background="White" Click="bttnRandomise_Click"></Button>
             </StackPanel>
 

@@ -101,7 +101,7 @@ namespace DemonSoulsItemRandomiser
                 parms[name] = param;
             }
 
-            InitRowLists(parms["EquipParamWeapon"], parms["EquipParamProtector"], parms["EquipParamAccessory"], parms["ItemLotParam"], parms["ShopLineupParam"]);
+            InitRowLists(parms["EquipParamWeapon"], parms["EquipParamProtector"], parms["EquipParamAccessory"], parms["ItemLotParam"], parms["ShopLineupParam"], parms["CharaInitParam"]);
 
             Random rng = new Random();
 
@@ -110,12 +110,15 @@ namespace DemonSoulsItemRandomiser
             {
                 foreach (var item in treasureItemLotsRows)
                 {
-                    PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
-                    while(rowToSwapWith.ID == item.ID) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                    if(Convert.ToInt64(item["lotItemCategory01"].Value) != -1)
+                    {
+                        PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                        while (rowToSwapWith.ID == item.ID || Convert.ToInt64(rowToSwapWith["lotItemCategory01"].Value) == -1) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
 
-                    SwapItemValues(item, rowToSwapWith, "lotItemId01");
-                    SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
-                    SwapItemValues(item, rowToSwapWith, "lotItemNum01");
+                        SwapItemValues(item, rowToSwapWith, "lotItemId01");
+                        SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
+                        SwapItemValues(item, rowToSwapWith, "lotItemNum01");
+                    }
                 }
             }
 
@@ -157,7 +160,7 @@ namespace DemonSoulsItemRandomiser
                 foreach (var item in keyItemLotRows)
                 {
                     PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
-                    while (rowToSwapWith.ID == item.ID || forbiddenItemLotIds.Contains(rowToSwapWith.ID)) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                    while (rowToSwapWith.ID == item.ID || Convert.ToInt64(rowToSwapWith["lotItemCategory01"].Value) == -1 || forbiddenItemLotIds.Contains(rowToSwapWith.ID)) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
 
                     SwapItemValues(item, rowToSwapWith, "lotItemId01");
                     SwapItemValues(item, rowToSwapWith, "lotItemCategory01");
@@ -181,7 +184,7 @@ namespace DemonSoulsItemRandomiser
                         if (swapWithWorldItem)
                         {
                             PARAM.Row rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
-                            if (rowToSwapWith.ID == item.ID) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
+                            while (rowToSwapWith.ID == item.ID || Convert.ToInt64(rowToSwapWith["lotItemCategory01"].Value) == -1) rowToSwapWith = treasureItemLotsRows[rng.Next(treasureItemLotsRows.Count)];
 
                             var rowToSwapWithItemId = rowToSwapWith["lotItemId01"].Value;
                             var rowToSwapWithItemCategory = 0;
@@ -189,7 +192,7 @@ namespace DemonSoulsItemRandomiser
                             var currentRowItemId = item["equipId"].Value;
                             var currentRowItemCategory = 0;
 
-                            switch (Convert.ToInt64(item["equipId"].Value))
+                            switch (Convert.ToInt64(item["equipType"].Value))
                             {
                                 case 0:
                                     currentRowItemCategory = 0;
@@ -437,7 +440,7 @@ namespace DemonSoulsItemRandomiser
             foreach (var item in shopItems.Rows)
             {
                 //Exclude spell vendors
-                if (Convert.ToInt64(item["shopType"].Value) != 3 || Convert.ToInt64(item["shopType"].Value) != 4)
+                if (Convert.ToInt64(item["shopType"].Value) != 2 && Convert.ToInt64(item["shopType"].Value) != 3)
                 {
                     shopItemRows.Add(item);
                 }
