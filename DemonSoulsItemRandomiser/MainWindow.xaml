@@ -7,32 +7,88 @@
         mc:Ignorable="d"
         Background="WhiteSmoke"
         WindowStartupLocation="CenterScreen"
-        Title="DeS Item Randomiser" Height="325" Width="500">
-    <Grid>
-        <StackPanel Margin="5">
-            <Label Content="Demon Souls Item Randomiser" FontSize="22" HorizontalContentAlignment="Center" FontWeight="Bold"></Label>
-            <Label Content="By Keeko" FontSize="18" HorizontalContentAlignment="Center"></Label>
-            <GroupBox Header="Settings">
-                <StackPanel>
-                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseWorldTreasure}">
-                        <TextBlock Text="Randomise World Treasure (the glowing orbs located around the map)" VerticalAlignment="Center" Margin="25,0,0,0" IsEnabled="True"></TextBlock>
-                    </CheckBox>
-                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseKeyItems}">
-                        <TextBlock Text="Randomise Key &amp; Progression Items (e.g Prison Cell keys)" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
-                    </CheckBox>
-                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseEnemyDropTables}">
-                        <TextBlock Text="Randomise enemy drop tables" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
-                    </CheckBox>
-                    <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseShopInventory}">
-                        <TextBlock Text="Randomise shop inventory" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
-                    </CheckBox>
+        SizeToContent="Height"
+        Title="DeS Item Randomiser"  Width="500">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
+    </Window.Resources>
+    <TabControl>
+        <TabItem Header="Randomiser">
+            <Grid>
+                <StackPanel Margin="5">
+                    <Label Content="Demon Souls Item Randomiser" FontSize="22" HorizontalContentAlignment="Center" FontWeight="Bold"></Label>
+                    <Label Content="By Keeko" FontSize="18" HorizontalContentAlignment="Center"></Label>
+                    <GroupBox Header="Settings">
+                        <StackPanel>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseWorldTreasure}">
+                                <TextBlock Text="Randomise World Treasure (the glowing orbs located around the map)" VerticalAlignment="Center" Margin="25,0,0,0" IsEnabled="True"></TextBlock>
+                            </CheckBox>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseKeyItems}">
+                                <TextBlock Text="Randomise Key &amp; Progression Items (e.g Prison Cell keys)" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                            </CheckBox>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseEnemyDropTables}">
+                                <TextBlock Text="Randomise enemy drop tables" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                            </CheckBox>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseShopInventory}">
+                                <TextBlock Text="Randomise shop inventory" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                            </CheckBox>
+                            <DockPanel >
+                                <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding UseRandomSeed}">
+                                    <TextBlock Text="Custom Seed" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                                </CheckBox>
+                                <TextBox Margin="25,0,175,0" Visibility="{Binding UseRandomSeed, Converter={StaticResource VisibleIfTrueConverter}}" Text="{Binding RandomSeed}" VerticalContentAlignment="Center" TextAlignment="Center"></TextBox>
+                            </DockPanel>
+
+                        </StackPanel>
+
+                    </GroupBox>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="bttnRandomise" Content="Randomise" Padding="10" Margin="5" Background="White" Click="bttnRandomise_Click"></Button>
+                    </StackPanel>
+
                 </StackPanel>
+                <Canvas HorizontalAlignment="Left" Height="100" Margin="-34,371,0,-192" VerticalAlignment="Top" Width="100"/>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Gameplay Patch">
+            <Grid>
+                <StackPanel Margin="5">
+                    <Label Content="Demon Souls Game Patch" FontSize="22" HorizontalContentAlignment="Center" FontWeight="Bold"></Label>
+                    <Label Content="By Keeko" FontSize="18" HorizontalContentAlignment="Center"></Label>
+                    <GroupBox Header="Settings">
+                        <StackPanel>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseWorldTreasure}">
+                                <TextBlock Text="Remove gender limitations on gear" VerticalAlignment="Center" Margin="25,0,0,0" IsEnabled="True"></TextBlock>
+                            </CheckBox>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseKeyItems}">
+                                <TextBlock Text="Increase ladder climbing speed" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                            </CheckBox>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseEnemyDropTables}">
+                                <TextBlock Text="Make Shard of Archstone cheaper" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                            </CheckBox>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseShopInventory}">
+                                <TextBlock Text="Remove inventory load" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                            </CheckBox>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseShopInventory}">
+                                <TextBlock Text="Stop body form deaths from affecting world tendency." VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                            </CheckBox>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseShopInventory}">
+                                <TextBlock Text="Ring allows fast rolling in swamp" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                            </CheckBox>
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseShopInventory}">
+                                <TextBlock Text="Play footstep audio in soul form" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
+                            </CheckBox>
+                        </StackPanel>
 
-            </GroupBox>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="bttnRandomise" Content="Randomise" Padding="10" Margin="5" Background="White" Click="bttnRandomise_Click"></Button>
-            </StackPanel>
+                    </GroupBox>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="bttnPatch" Content="Patch Game" Padding="10" Margin="5" Background="White"></Button>
+                    </StackPanel>
 
-        </StackPanel>
-    </Grid>
+                </StackPanel>
+                <Canvas HorizontalAlignment="Left" Height="100" Margin="-34,371,0,-192" VerticalAlignment="Top" Width="100"/>
+            </Grid>
+        </TabItem>
+    </TabControl>
+
 </Window>

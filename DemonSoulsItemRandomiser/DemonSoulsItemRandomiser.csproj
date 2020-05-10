@@ -69,14 +69,25 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Enums\ItemCategoryID.cs" />
+    <Compile Include="Enums\ItemLotType.cs" />
+    <Compile Include="Enums\ItemShopCategoryID.cs" />
+    <Compile Include="Enums\ShopTypeID.cs" />
+    <Compile Include="Enums\WorldID.cs" />
+    <Compile Include="IDBanks.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Item.cs" />
-    <Compile Include="Models\ItemLot.cs" />
+    <Compile Include="Models\Enemies\Enemy.cs" />
+    <Compile Include="Models\Items\Item.cs" />
+    <Compile Include="Models\Items\ItemLot.cs" />
+    <Compile Include="Models\Items\ItemLotItem.cs" />
+    <Compile Include="Models\Items\ItemShop.cs" />
+    <Compile Include="Models\Levels\Level.cs" />
+    <Compile Include="Models\NPCs\Shopkeeper\NPCShopkeeper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -469,6 +480,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
+    <Folder Include="Models\NPCs\Normal\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SoulsFormats\SoulsFormats\SoulsFormats.csproj">
