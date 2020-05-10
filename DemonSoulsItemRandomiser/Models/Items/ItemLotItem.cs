@@ -9,15 +9,18 @@ namespace DemonSoulsItemRandomiser.Models
 {
     public class ItemLotItem
     {
+        ItemLot ParentItemLot { get; set; }
+        public string ItemDescription { get; set; }
+
         //Host only item (Generally NPC Drops)
         public bool HostOnlyItem { get; set; }
-        public long HostOnlyItemCategory { get; set; }
+        public ItemCategoryID HostOnlyItemCategory { get; set; }
         public long HostOnlyItemID { get; set; }
         public int  HostOnlyItemNumber { get; set; }
         public long EventId { get; set; }
 
         //Lot Item (World drops, enemy drops and other interactable objects)
-        public long LotItemCategory { get; set; }
+        public ItemCategoryID LotItemCategory { get; set; }
         public long LotItemId { get; set; }
         public int  LotItemNumber { get; set; }
         public int  LotItemBasePoint { get; set; }
@@ -25,16 +28,19 @@ namespace DemonSoulsItemRandomiser.Models
         public int  QWCAppliesPoint { get; set; }
         public bool EnableLuck { get; set; }
 
-        public ItemLotItem(long hostOnlyItemCategory, long hostOnlyItemID, int hostOnlyItemNumber, long eventId)
+        public ItemLotItem(ItemCategoryID hostOnlyItemCategory, long hostOnlyItemID, int hostOnlyItemNumber, long eventId, ItemLot parentItemLot)
         {
             HostOnlyItemCategory = hostOnlyItemCategory;
             HostOnlyItemID = hostOnlyItemID;
             HostOnlyItemNumber = hostOnlyItemNumber;
             EventId = eventId;
             HostOnlyItem = true;
+            ParentItemLot = parentItemLot;
+            
+            SetItemDescription();
         }
 
-        public ItemLotItem(long lotItemCategory, long lotItemId, int lotItemNumber, int lotItemBasePoint, int qWCBasePoint, int qWCAppliesPoint, bool enableLuck)
+        public ItemLotItem(ItemCategoryID lotItemCategory, long lotItemId, int lotItemNumber, int lotItemBasePoint, int qWCBasePoint, int qWCAppliesPoint, bool enableLuck, ItemLot parentItemLot)
         {
             LotItemCategory = lotItemCategory;
             LotItemId = lotItemId;
@@ -44,12 +50,19 @@ namespace DemonSoulsItemRandomiser.Models
             QWCAppliesPoint = qWCAppliesPoint;
             EnableLuck = enableLuck;
             HostOnlyItem = false;
+            ParentItemLot = parentItemLot;
+
+            SetItemDescription();
+        }
+
+        private void SetItemDescription()
+        {
+            ItemDescription = Util.ItemDescriptionTranslator.TranslateItem(HostOnlyItem ? HostOnlyItemCategory : LotItemCategory, HostOnlyItem ? HostOnlyItemID : LotItemId);
         }
 
         public override string ToString()
         {
-            if (HostOnlyItem) return HostOnlyItemID.ToString();
-            else return LotItemId.ToString();
+            return HostOnlyItem ? HostOnlyItemID.ToString() : LotItemId.ToString() + " - " + ItemDescription;
         }
     }
 }

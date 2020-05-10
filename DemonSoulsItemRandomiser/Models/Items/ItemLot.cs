@@ -15,6 +15,7 @@ namespace DemonSoulsItemRandomiser.Models
 
         public List<ItemLotItem> ItemLotItems { get; set; }
         public ItemLotType LotType { get; set; }
+        public PARAM.Row OriginalParamRow { get; set; }
    
         public ItemLot(PARAM.Row itemLotRow)
         {
@@ -27,14 +28,19 @@ namespace DemonSoulsItemRandomiser.Models
             {
                 if(i != 9)
                 {
-                    ItemLotItems.Add(new ItemLotItem(Convert.ToInt64(itemLotRow["lotItemCategory0" + i].Value), Convert.ToInt64(itemLotRow["lotItemId0" + i].Value), Convert.ToInt32(itemLotRow["lotItemNum0" + i].Value), Convert.ToInt32(itemLotRow["lotItemBasePoint0" + i].Value),
-                        Convert.ToInt32(itemLotRow["QWCBasePoint0" + i].Value), Convert.ToInt32(itemLotRow["QWCAppliesPoint0" + i].Value), Convert.ToBoolean(itemLotRow["enableLuck0" + i].Value)));
+                    ItemLotItems.Add(new ItemLotItem((ItemCategoryID) itemLotRow["lotItemCategory0" + i].Value, Convert.ToInt64(itemLotRow["lotItemId0" + i].Value), Convert.ToInt32(itemLotRow["lotItemNum0" + i].Value), Convert.ToInt32(itemLotRow["lotItemBasePoint0" + i].Value),
+                        Convert.ToInt32(itemLotRow["QWCBasePoint0" + i].Value), Convert.ToInt32(itemLotRow["QWCAppliesPoint0" + i].Value), Convert.ToBoolean(itemLotRow["enableLuck0" + i].Value), this));
                 }
                 else
                 {
-                    ItemLotItems.Add(new ItemLotItem(Convert.ToInt64(itemLotRow["hostOnlyItemCate"].Value), Convert.ToInt64(itemLotRow["hostOnlyItemId"].Value), Convert.ToInt32(itemLotRow["hostOnlyItemNum"].Value), Convert.ToInt64(itemLotRow["eventId"].Value)));
+                    ItemLotItems.Add(new ItemLotItem((ItemCategoryID)itemLotRow["hostOnlyItemCate"].Value, Convert.ToInt64(itemLotRow["hostOnlyItemId"].Value), Convert.ToInt32(itemLotRow["hostOnlyItemNum"].Value), Convert.ToInt64(itemLotRow["eventId"].Value), this));
                 }
             }
+        }
+
+        private void WriteChangesToRow()
+        {
+           // OriginalParamRow
         }
 
         public override string ToString()

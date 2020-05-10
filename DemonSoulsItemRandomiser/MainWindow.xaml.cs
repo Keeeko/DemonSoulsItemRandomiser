@@ -73,7 +73,7 @@ namespace DemonSoulsItemRandomiser
         //Consumeables
         List<long> consumeablesIds;
 
-        public List<ItemLot> ItemLots;
+        public GameWorld GameWorld { get; set; }
 
         public MainWindow()
         {
@@ -83,6 +83,8 @@ namespace DemonSoulsItemRandomiser
             RandomiseWorldTreasure = true;
             Random rng = new Random();
             RandomSeed = rng.Next(0, 2_147_483_647);
+
+            GameWorld = new GameWorld();
             IDBanks.InitIDLists();
         }
 
@@ -377,7 +379,6 @@ namespace DemonSoulsItemRandomiser
             bossItemsRows = new List<PARAM.Row>();
             startingEquipmentRows = new List<PARAM.Row>();
             soulsDatabase = new List<PARAM.Row>();
-            ItemLots = new List<ItemLot>();
 
             foreach (var item in parms["EquipParamWeapon"].Rows)
             {
@@ -405,33 +406,45 @@ namespace DemonSoulsItemRandomiser
 
             foreach (var item in parms["ItemLotParam"].Rows)
             {
-                    ItemLots.Add(new ItemLot(item));
+                GameWorld.ItemLots.Add(new ItemLot(item));
 
-                    if (IDBanks.treasureItemLots.Contains(item.ID))
-                    {
-                        treasureItemLotsRows.Add(item);
-                    }
-                    
-                    if (IDBanks.enemyDropTableLotIds.Contains(item.ID))
-                    {
-                        enemyDropTableRows.Add(item);
-                    }
-                    
-                    if (IDBanks.keyItems.Contains(item.ID))
-                    {
-                        keyItemLotRows.Add(item);
-                    }
+                //Nexus treasurelots
+                if (IDBanks.treasureItemLotsNexus.Contains(item.ID))
+                {
+                    GameWorld.GetLevel(WorldID.NEXUS, 0).ItemLots.Add(new ItemLot(item));
+                }
 
-                    if(IDBanks.bossItems.Contains(item.ID))
-                    {
-                        bossItemsRows.Add(item);
-                        soulsDatabase.Add(item);
-                    }
+                //Boletaria treasureLots
+                if (IDBanks.treasureItemLotsBoletarianPalace.Contains(item.ID))
+                {
+                    GameWorld.GetLevel(WorldID.BOLETARIA, 0).ItemLots.Add(new ItemLot(item));
+                }
 
-                    if (IDBanks.soulsIds.Contains(item.ID))
-                    {
-                        soulsDatabase.Add(item);
-                    }
+                if (IDBanks.treasureItemLots.Contains(item.ID))
+                {
+                    treasureItemLotsRows.Add(item);
+                }
+
+                if (IDBanks.enemyDropTableLotIds.Contains(item.ID))
+                {
+                    enemyDropTableRows.Add(item);
+                }
+
+                if (IDBanks.keyItems.Contains(item.ID))
+                {
+                    keyItemLotRows.Add(item);
+                }
+
+                if (IDBanks.bossItems.Contains(item.ID))
+                {
+                    bossItemsRows.Add(item);
+                    soulsDatabase.Add(item);
+                }
+
+                if (IDBanks.soulsIds.Contains(item.ID))
+                {
+                    soulsDatabase.Add(item);
+                }
             }
         }
 

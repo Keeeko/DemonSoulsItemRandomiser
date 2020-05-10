@@ -9,9 +9,19 @@ namespace DemonSoulsItemRandomiser.Models
 {
     public class Level
     {
-        public int WorldID { get; set; }
+        public WorldID World { get; set; }
         public int LevelID { get; set; }
         public string LevelName { get; set; }
         public List<ItemLot> ItemLots { get; set; }
+        public List<NPCShopkeeper> ShopKeepers { get; set; }
+
+        public Level(WorldID world, int levelID, string levelName)
+        {
+            World = world;
+            LevelID = levelID;
+            LevelName = levelName;
+            ItemLots = new List<ItemLot>();
+            ShopKeepers = new List<NPCShopkeeper>();
+        }
     }
 }
