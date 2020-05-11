@@ -20,23 +20,23 @@
                     <Label Content="By Keeko" FontSize="18" HorizontalContentAlignment="Center"></Label>
                     <GroupBox Header="Settings">
                         <StackPanel>
-                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseWorldTreasure}">
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding Randomiser.RandomiseWorldTreasure}">
                                 <TextBlock Text="Randomise World Treasure (the glowing orbs located around the map)" VerticalAlignment="Center" Margin="25,0,0,0" IsEnabled="True"></TextBlock>
                             </CheckBox>
-                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseKeyItems}">
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding Randomiser.RandomiseKeyItems}">
                                 <TextBlock Text="Randomise Key &amp; Progression Items (e.g Prison Cell keys)" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
                             </CheckBox>
-                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseEnemyDropTables}">
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding Randomiser.RandomiseEnemyDropTables}">
                                 <TextBlock Text="Randomise enemy drop tables" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
                             </CheckBox>
-                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding RandomiseShopInventory}">
+                            <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding Randomiser.RandomiseShopInventory}">
                                 <TextBlock Text="Randomise shop inventory" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
                             </CheckBox>
                             <DockPanel >
-                                <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding UseRandomSeed}">
+                                <CheckBox VerticalAlignment="Center" Margin="0,5" IsChecked="{Binding Randomiser.UseRandomSeed}">
                                     <TextBlock Text="Custom Seed" VerticalAlignment="Center" Margin="25,0,0,0"></TextBlock>
                                 </CheckBox>
-                                <TextBox Margin="25,0,175,0" Visibility="{Binding UseRandomSeed, Converter={StaticResource VisibleIfTrueConverter}}" Text="{Binding RandomSeed}" VerticalContentAlignment="Center" TextAlignment="Center"></TextBox>
+                                <TextBox Margin="25,0,175,0" Visibility="{Binding Randomiser.UseRandomSeed, Converter={StaticResource VisibleIfTrueConverter}}" Text="{Binding Randomiser.RandomSeed}" VerticalContentAlignment="Center" TextAlignment="Center"></TextBox>
                             </DockPanel>
 
                         </StackPanel>

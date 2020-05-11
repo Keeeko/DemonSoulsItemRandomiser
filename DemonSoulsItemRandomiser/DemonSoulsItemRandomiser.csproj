@@ -78,8 +78,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Interfaces\ItemLotCollectionOwner.cs" />
+    <Compile Include="Interfaces\ISaveable.cs" />
     <Compile Include="Models\GameWorld.cs" />
+    <Compile Include="Models\NPCs\Normal\Enemy.cs" />
+    <Compile Include="Randomiser.cs" />
     <Compile Include="Util\ItemDescriptionTranslator.cs" />
     <Compile Include="Util\ItemLotRetrievalFilters.cs" />
     <Page Include="MainWindow.xaml">
@@ -102,8 +104,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Enemies\Enemy.cs" />
-    <Compile Include="Models\Items\Item.cs" />
     <Compile Include="Models\Items\ItemLot.cs" />
     <Compile Include="Models\Items\ItemLotItem.cs" />
     <Compile Include="Models\Items\ItemShop.cs" />

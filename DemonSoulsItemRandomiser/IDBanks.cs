@@ -27,6 +27,15 @@ namespace DemonSoulsItemRandomiser
         public static List<long> treasureItemLotsShrineOfStorms;
         public static List<long> treasureItemLotsValleyOfDefilement;
 
+        //Shopkeepers
+        public static List<long> boldwinShopItemIds;
+        public static List<long> dreglingShopItemIds;
+        public static List<long> filthyManShopItemIds;
+        public static List<long> mistressShopItemIds;
+        public static List<long> BligeShopItemIds;
+        public static List<long> filthyWomanShopItemIds;
+        public static List<long> patchesShopItemIds;
+
         //Items that allow progression
         public static List<long> keyItems;
 
@@ -251,6 +260,58 @@ namespace DemonSoulsItemRandomiser
 
             #endregion
 
+            #region SHOP KEEPERS
+
+            #region BOLDWIN
+            boldwinShopItemIds = new List<long>
+            {
+                9008,9007,9006,9005,9004,9003,9002,9001,9000
+            };
+            #endregion
+
+            #region Dregling
+            dreglingShopItemIds = new List<long>
+            {
+              1154,1153,1152,1151,1150,1105,1104,1103,1102,1101,1100,1054,1053,1052,1051,1050,1015,1014,1013,1012,1011,1010,1009,1008,1007,1006,1005,1004,1003,1002,1001,1000
+            };
+            #endregion
+
+            #region FILTHY MAN
+            filthyManShopItemIds = new List<long>
+            {
+                5054,5053,5052,5051,5050,5004,5003,5002,5001,5000
+            };
+            #endregion
+
+            #region MISTRESS
+            mistressShopItemIds = new List<long>
+            {
+                3014,3010,3009,3008,3007,3006,3005,3004,3003,3002,3001,3000
+            };
+            #endregion
+
+            #region GRAVEROBBER BLIGE
+            BligeShopItemIds = new List<long>
+            {
+                2054,2053,2052,2051,2050,2016,2015,2014,2013,2012,2011,2010,2009,2008,2007,2006,2005,2004,2003,2002,2001,2000
+            };
+            #endregion
+
+            #region FILTHY WOMAN
+            filthyWomanShopItemIds = new List<long>
+            {
+                4055,4054,4053,4052,4051,4050,4014,4013,4012,4011,4010,4009,4008,4007,4006,4005,4004,4003,4002,4001,4000
+            };
+            #endregion
+
+            #region PATCHES
+            patchesShopItemIds = new List<long>
+            {
+                6153,6151,6101,6100,6051,6050,6007,6006,6005,6004,6003,6002,6001,6000
+            };
+            #endregion
+
+            #endregion
         }
     }
 }

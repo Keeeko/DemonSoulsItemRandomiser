@@ -13,11 +13,10 @@ namespace DemonSoulsItemRandomiser.Models
         public string ItemDescription { get; set; }
 
         //Host only item (Generally NPC Drops)
-        public bool HostOnlyItem { get; set; }
+        private bool HostOnlyItem { get; set; }
         public ItemCategoryID HostOnlyItemCategory { get; set; }
         public long HostOnlyItemID { get; set; }
         public int  HostOnlyItemNumber { get; set; }
-        public long EventId { get; set; }
 
         //Lot Item (World drops, enemy drops and other interactable objects)
         public ItemCategoryID LotItemCategory { get; set; }
@@ -33,7 +32,6 @@ namespace DemonSoulsItemRandomiser.Models
             HostOnlyItemCategory = hostOnlyItemCategory;
             HostOnlyItemID = hostOnlyItemID;
             HostOnlyItemNumber = hostOnlyItemNumber;
-            EventId = eventId;
             HostOnlyItem = true;
             ParentItemLot = parentItemLot;
             
@@ -57,7 +55,8 @@ namespace DemonSoulsItemRandomiser.Models
 
         private void SetItemDescription()
         {
-            ItemDescription = Util.ItemDescriptionTranslator.TranslateItem(HostOnlyItem ? HostOnlyItemCategory : LotItemCategory, HostOnlyItem ? HostOnlyItemID : LotItemId);
+            //Disabled, this needs optimised or predone then cached into the original data file as opening up connections for each items is wrecking application performance
+            //ItemDescription = Util.ItemDescriptionTranslator.TranslateItem(HostOnlyItem ? HostOnlyItemCategory : LotItemCategory, HostOnlyItem ? HostOnlyItemID : LotItemId);
         }
 
         public override string ToString()
