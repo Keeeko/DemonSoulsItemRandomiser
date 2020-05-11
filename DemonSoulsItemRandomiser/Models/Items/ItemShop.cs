@@ -7,12 +7,11 @@ using SoulsFormats;
 
 namespace DemonSoulsItemRandomiser.Models
 {
-    public class ItemShop : ISaveable
+    public class ItemShop : Item, ISaveable
     {
         public NPCShopkeeper ownerShopKeeper;
         PARAM.Row originalRow;
 
-        public long ID { get; set; }
         public ShopTypeID ShopType { get; set; }
         public ItemShopCategoryID EquipType { get; set; }
         public long EquipID { get; set; }

@@ -7,7 +7,7 @@ using SoulsFormats;
 
 namespace DemonSoulsItemRandomiser.Models
 {
-    public class ItemLotItem
+    public class ItemLotItem : Item
     {
         ItemLot ParentItemLot { get; set; }
         public string ItemDescription { get; set; }
@@ -27,7 +27,7 @@ namespace DemonSoulsItemRandomiser.Models
         public int  QWCAppliesPoint { get; set; }
         public bool EnableLuck { get; set; }
 
-        public ItemLotItem(ItemCategoryID hostOnlyItemCategory, long hostOnlyItemID, int hostOnlyItemNumber, long eventId, ItemLot parentItemLot)
+        public ItemLotItem(ItemCategoryID hostOnlyItemCategory, long hostOnlyItemID, int hostOnlyItemNumber, long eventId, ItemLot parentItemLot) : base(hostOnlyItemID, hostOnlyItemCategory)
         {
             HostOnlyItemCategory = hostOnlyItemCategory;
             HostOnlyItemID = hostOnlyItemID;

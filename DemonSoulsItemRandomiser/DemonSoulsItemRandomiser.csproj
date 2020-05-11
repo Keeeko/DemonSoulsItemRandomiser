@@ -80,7 +80,10 @@
     </ApplicationDefinition>
     <Compile Include="Interfaces\ISaveable.cs" />
     <Compile Include="Models\GameWorld.cs" />
+    <Compile Include="Models\Items\Item.cs" />
     <Compile Include="Models\NPCs\Normal\Enemy.cs" />
+    <Compile Include="Models\ProgressionNode.cs" />
+    <Compile Include="MSB\MSBData.cs" />
     <Compile Include="Randomiser.cs" />
     <Compile Include="Util\ItemDescriptionTranslator.cs" />
     <Compile Include="Util\ItemLotRetrievalFilters.cs" />
