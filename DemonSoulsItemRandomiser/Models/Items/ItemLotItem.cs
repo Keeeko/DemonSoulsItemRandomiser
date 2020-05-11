@@ -38,7 +38,7 @@ namespace DemonSoulsItemRandomiser.Models
             SetItemDescription();
         }
 
-        public ItemLotItem(ItemCategoryID lotItemCategory, long lotItemId, int lotItemNumber, int lotItemBasePoint, int qWCBasePoint, int qWCAppliesPoint, bool enableLuck, ItemLot parentItemLot)
+        public ItemLotItem(ItemCategoryID lotItemCategory, long lotItemId, int lotItemNumber, int lotItemBasePoint, int qWCBasePoint, int qWCAppliesPoint, bool enableLuck, ItemLot parentItemLot) : base(lotItemId, lotItemCategory)
         {
             LotItemCategory = lotItemCategory;
             LotItemId = lotItemId;

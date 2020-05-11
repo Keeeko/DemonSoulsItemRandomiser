@@ -81,6 +81,7 @@
     <Compile Include="Interfaces\ISaveable.cs" />
     <Compile Include="Models\GameWorld.cs" />
     <Compile Include="Models\Items\Item.cs" />
+    <Compile Include="Models\Items\ShopLotItem.cs" />
     <Compile Include="Models\NPCs\Normal\Enemy.cs" />
     <Compile Include="Models\ProgressionNode.cs" />
     <Compile Include="MSB\MSBData.cs" />
@@ -109,7 +110,7 @@
   <ItemGroup>
     <Compile Include="Models\Items\ItemLot.cs" />
     <Compile Include="Models\Items\ItemLotItem.cs" />
-    <Compile Include="Models\Items\ItemShop.cs" />
+    <Compile Include="Models\Items\ShopLot.cs" />
     <Compile Include="Models\Levels\Level.cs" />
     <Compile Include="Models\NPCs\Normal\NPC.cs" />
     <Compile Include="Models\NPCs\Shopkeeper\NPCShopkeeper.cs" />

@@ -21,9 +21,10 @@ namespace DemonSoulsItemRandomiser.Models
         //All Itemlots
         public List<Level> GameLevels { get; set; }
         public List<ItemLot> ItemLots { get; set; }
+        public List<ItemLot> BossSouls { get; set; }
 
         public List<NPC> NPCs { get; set; }
-        public List<Enemy> EnemyItemLots { get; set; }
+        public List<Enemy> Enemies { get; set; }
         public List<NPCShopkeeper> ShopKeepers { get; set; }
 
         public List<PARAM.Row> enemyDropTableRows;
@@ -104,6 +105,8 @@ namespace DemonSoulsItemRandomiser.Models
                 
             };
 
+            BossSouls = new List<ItemLot>();
+
             //Populate Param row lists with items from bnd file
             InitRowLists();
         }
@@ -121,7 +124,7 @@ namespace DemonSoulsItemRandomiser.Models
             startingEquipmentRows = new List<PARAM.Row>();
             soulsDatabase = new List<PARAM.Row>();
 
-            EnemyItemLots = new List<Enemy>();
+            Enemies = new List<Enemy>();
 
             foreach (var item in Parms["EquipParamWeapon"].Rows)
             {
@@ -145,13 +148,13 @@ namespace DemonSoulsItemRandomiser.Models
                 {
                     shopItemRows.Add(item);
 
-                    if (IDBanks.boldwinShopItemIds.Contains(item.ID)) GetShopKeeper("Boldwin").Items.Add(new ItemShop(item, GetShopKeeper("Boldwin")));
-                    if (IDBanks.dreglingShopItemIds.Contains(item.ID)) GetShopKeeper("Dregling").Items.Add(new ItemShop(item, GetShopKeeper("Dregling")));
-                    if (IDBanks.filthyManShopItemIds.Contains(item.ID)) GetShopKeeper("Filthy Man").Items.Add(new ItemShop(item, GetShopKeeper("Filthy Man")));
-                    if (IDBanks.mistressShopItemIds.Contains(item.ID)) GetShopKeeper("Mistress").Items.Add(new ItemShop(item, GetShopKeeper("Mistress")));
-                    if (IDBanks.BligeShopItemIds.Contains(item.ID)) GetShopKeeper("Blige").Items.Add(new ItemShop(item, GetShopKeeper("Blige")));
-                    if (IDBanks.filthyWomanShopItemIds.Contains(item.ID)) GetShopKeeper("Filthy Woman").Items.Add(new ItemShop(item, GetShopKeeper("Filthy Woman")));
-                    if (IDBanks.patchesShopItemIds.Contains(item.ID)) GetShopKeeper("Patches").Items.Add(new ItemShop(item, GetShopKeeper("Patches")));
+                    if (IDBanks.boldwinShopItemIds.Contains(item.ID)) GetShopKeeper("Boldwin").Items.Add(new ShopLot(item, GetShopKeeper("Boldwin")));
+                    if (IDBanks.dreglingShopItemIds.Contains(item.ID)) GetShopKeeper("Dregling").Items.Add(new ShopLot(item, GetShopKeeper("Dregling")));
+                    if (IDBanks.filthyManShopItemIds.Contains(item.ID)) GetShopKeeper("Filthy Man").Items.Add(new ShopLot(item, GetShopKeeper("Filthy Man")));
+                    if (IDBanks.mistressShopItemIds.Contains(item.ID)) GetShopKeeper("Mistress").Items.Add(new ShopLot(item, GetShopKeeper("Mistress")));
+                    if (IDBanks.BligeShopItemIds.Contains(item.ID)) GetShopKeeper("Blige").Items.Add(new ShopLot(item, GetShopKeeper("Blige")));
+                    if (IDBanks.filthyWomanShopItemIds.Contains(item.ID)) GetShopKeeper("Filthy Woman").Items.Add(new ShopLot(item, GetShopKeeper("Filthy Woman")));
+                    if (IDBanks.patchesShopItemIds.Contains(item.ID)) GetShopKeeper("Patches").Items.Add(new ShopLot(item, GetShopKeeper("Patches")));
                 }
             }
 
@@ -191,6 +194,7 @@ namespace DemonSoulsItemRandomiser.Models
                 {
                     bossItemsRows.Add(item);
                     soulsDatabase.Add(item);
+                    BossSouls.Add(new ItemLot(item));
                 }
 
                 if (IDBanks.soulsIds.Contains(item.ID))
@@ -230,6 +234,46 @@ namespace DemonSoulsItemRandomiser.Models
             return returnItems;
         }
 
+
+        public List<ItemLot> GetAllEnemyItemLots()
+        {
+            List<ItemLot> returnItems = new List<ItemLot>();
+
+            foreach (var enemy in Enemies)
+            {
+                if (IDBanks.enemyDropTableLotIds.Contains(enemy.ItemLot.ID)) returnItems.Add(enemy.ItemLot);
+            }
+
+            return returnItems;
+        }
+
+
+
+        public List<ItemLot> GetAllKeyItems()
+        {
+            List<ItemLot> returnItems = new List<ItemLot>();
+
+            foreach (var item in ItemLots)
+            {
+                if (IDBanks.keyItems.Contains(item.ID)) returnItems.Add(item);
+            }
+
+            return returnItems;
+        }
+
+
+        public List<ItemLot> GetAllBossSouls()
+        {
+            List<ItemLot> returnItems = new List<ItemLot>();
+
+            foreach (var item in BossSouls)
+            {
+                if (IDBanks.bossItems.Contains(item.ID)) returnItems.Add(item);
+            }
+
+            return returnItems;
+        }
+
         public Level GetLevel(WorldID worldId, int level)
         {
             Level returnLevel = null;
@@ -262,9 +306,9 @@ namespace DemonSoulsItemRandomiser.Models
             return returnShopKeeper;
         }
 
-        public List<ItemShop> GetAllShopItems()
+        public List<ShopLot> GetAllShopItems()
         {
-            List<ItemShop> returnItems = new List<ItemShop>();
+            List<ShopLot> returnItems = new List<ShopLot>();
 
             foreach (var shopKeeper in ShopKeepers)
             {

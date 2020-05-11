@@ -11,13 +11,13 @@ namespace DemonSoulsItemRandomiser.Models
     public class NPCShopkeeper
     {
         public string Name { get; set; }
-        public List<ItemShop> Items {get; set;}
+        public List<ShopLot> Items {get; set;}
         public Level OwnerLevel { get; set; }
 
         public NPCShopkeeper(string name, Level ownerLevel)
         {
             Name = name;
-            Items = new List<ItemShop>();
+            Items = new List<ShopLot>();
             OwnerLevel = ownerLevel;
         }
 
