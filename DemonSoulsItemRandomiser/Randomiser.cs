@@ -3,12 +3,13 @@ using SoulsFormats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DemonSoulsItemRandomiser
+namespace DemonSoulsItemRandomiser 
 {
-    public class Randomiser
+    public class Randomiser : INotifyPropertyChanged
     {
         public bool RandomiseWorldTreasure { get; set; }
         public bool RandomiseKeyItems { get; set; }
@@ -19,6 +20,9 @@ namespace DemonSoulsItemRandomiser
         public int RandomSeed { get; set; }
 
         Random rng;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public Randomiser()
         {
             RandomiseWorldTreasure = true;

@@ -39,8 +39,8 @@ namespace DemonSoulsItemRandomiser
         {
             InitializeComponent();
             DataContext = this;
-
             IDBanks.InitIDLists();
+            Randomiser = new Randomiser();
         }
 
         private void UnpackGameBNDFile()
@@ -83,7 +83,6 @@ namespace DemonSoulsItemRandomiser
         {
             UnpackGameBNDFile();
             GameWorld = new GameWorld();
-            Randomiser = new Randomiser();
             Randomiser.RandomiseItems();
             RepackGameBNDFile();
         }
