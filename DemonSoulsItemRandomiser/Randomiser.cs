@@ -32,7 +32,6 @@ namespace DemonSoulsItemRandomiser
 
         public void RandomiseItems()
         {
-            Random rng;
             if (UseRandomSeed) rng = new Random(RandomSeed);
             else rng = new Random();
 
@@ -103,15 +102,16 @@ namespace DemonSoulsItemRandomiser
                 if (!IDBanks.keyItems.Contains(shopLot.ShopLotItem.EquipID))
                 {
                     //Decide if swapping with vendor or with world items
-                    bool swapWithWorldItem = false;
+                    bool swapWithWorldItem = true;
 
-                    swapWithWorldItem = rng.Next(0, 2) > 0;
+                    //swapWithWorldItem = rng.Next(0, 2) > 0;
 
                     if (swapWithWorldItem)
                     {
                         //Pick a random treasure to swap with, make sure its not a NORMAL soul drop
                         ItemLot treasureItemToSwapWith = cachedTreasureLots[rng.Next(cachedTreasureLots.Count)];
-                        while (Convert.ToInt64(treasureItemToSwapWith.ItemLotItems[0].ItemCategory) == -1 && !IDBanks.soulsIds.Contains(treasureItemToSwapWith.ItemLotItems[0].ID)) treasureItemToSwapWith = cachedTreasureLots[rng.Next(cachedTreasureLots.Count)];
+                        while (shopLot.ownerShopKeeper.HasShopLotItem(treasureItemToSwapWith) || Convert.ToInt64(treasureItemToSwapWith.ItemLotItems[0].ItemCategory) == -1 || IDBanks.soulsIds.Contains(treasureItemToSwapWith.ItemLotItems[0].ID))
+                            treasureItemToSwapWith = cachedTreasureLots[rng.Next(cachedTreasureLots.Count)];
 
                         shopLot.SwapItemLotValues(treasureItemToSwapWith.ItemLotItems[0]);
                     }
@@ -120,7 +120,7 @@ namespace DemonSoulsItemRandomiser
                     {
                         //Don't swap an item with itself
                         ShopLot shopItemToSwapWith = cachedShopItems[rng.Next(cachedShopItems.Count)];
-                        while (shopItemToSwapWith.ID == shopLot.ID) shopItemToSwapWith = cachedShopItems[rng.Next(cachedShopItems.Count)];
+                        while (shopItemToSwapWith.ID == shopLot.ID || shopLot.ownerShopKeeper.HasShopLotItem(shopItemToSwapWith.ShopLotItem)) shopItemToSwapWith = cachedShopItems[rng.Next(cachedShopItems.Count)];
 
                         shopLot.SwapItemLotValues(shopItemToSwapWith.ShopLotItem);
                     }

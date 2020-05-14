@@ -49,7 +49,7 @@ namespace DemonSoulsItemRandomiser.Models
             var myNewItemCategory = ShopLotItem.EquipType;
 
             //Swap ID's
-            ShopLotItem.ID = itemLotToSwapWithOriginalItemId;
+            ShopLotItem.EquipID = itemLotToSwapWithOriginalItemId;
             itemToSwapWith.ID = myOriginalItemID;
 
             switch (itemToSwapWith.LotItemCategory)
